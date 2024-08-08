@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:monlamai_app/screens/settings.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -15,6 +16,11 @@ class HomeScreen extends StatelessWidget {
           icon: const Icon(Icons.list),
           onPressed: () {
             // navigate to settings screen
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const SettingsScreen(),
+              ),
+            );
           },
           tooltip: "Menu",
         ),
