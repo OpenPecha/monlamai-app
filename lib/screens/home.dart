@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:monlamai_app/screens/favorites.dart';
 import 'package:monlamai_app/screens/settings.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -48,7 +49,10 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.star),
             onPressed: () {
-              // do something
+              // navigate to favorites screen
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => const FavoritesScreen(),
+              ));
             },
             tooltip: 'Favorite',
           ),

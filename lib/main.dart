@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:monlamai_app/screens/home.dart';
 
 // light bg color
-const lightBgColor = Color(0xFFF5F5F5);
+const lightBgColor = Color(0xFFF2F2F2);
 const lightBtnBgColor = Color(0xFF444444);
 const lightBtnTextColor = Color(0xFFFFFFFF);
 
@@ -24,8 +24,7 @@ final lightTheme = ThemeData().copyWith(
   ),
   scaffoldBackgroundColor: lightBgColor,
   cardTheme: const CardTheme(
-    color: Color.fromRGBO(255, 255, 255, 100),
-    margin: EdgeInsets.all(10),
+    color: Color(0xFFFFFFFF),
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
