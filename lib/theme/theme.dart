@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:monlamai_app/screens/home.dart';
-import 'package:monlamai_app/theme/theme_provider.dart';
-import 'package:provider/provider.dart';
 
 // light bg color
 const lightBgColor = Color(0xFFF2F2F2);
 const lightBtnBgColor = Color(0xFF444444);
 const lightBtnTextColor = Color(0xFFFFFFFF);
+const secondContainerColor = Color(0xFFEDEDED);
 
 // dark bg color
 const darkBgColor = Color(0xFF202020);
 const darkBtnBgColor = Color(0xFF444444);
 const darkBtnTextColor = Color(0xFFFFFFFF);
+const darkSecondContainerColor = Color(0xFF282828);
 
-// light theme
-final lightTheme = ThemeData().copyWith(
+ThemeData lightMode = ThemeData(
+  brightness: Brightness.light,
+  colorScheme: const ColorScheme.light(
+      background: lightBgColor,
+      primary: lightBtnBgColor,
+      secondary: lightBtnTextColor),
   appBarTheme: const AppBarTheme(
     backgroundColor: lightBgColor,
-    foregroundColor: Color.fromRGBO(24, 24, 24, 100),
+    foregroundColor: Color(0x9C181818),
     titleTextStyle: TextStyle(
-      color: Color.fromRGBO(24, 24, 24, 100),
+      color: Color(0x9C181818),
       fontSize: 18,
       fontWeight: FontWeight.normal,
     ),
@@ -41,11 +44,15 @@ final lightTheme = ThemeData().copyWith(
       ),
     ),
   ),
-  brightness: Brightness.light,
+  canvasColor: secondContainerColor,
 );
 
-// dark theme
-final darkTheme = ThemeData.dark().copyWith(
+ThemeData darkMode = ThemeData(
+  brightness: Brightness.dark,
+  colorScheme: const ColorScheme.dark(
+      background: darkBgColor,
+      primary: darkBtnBgColor,
+      secondary: darkBtnTextColor),
   appBarTheme: const AppBarTheme(
     backgroundColor: darkBgColor,
     foregroundColor: Color.fromRGBO(255, 255, 255, 100),
@@ -67,29 +74,10 @@ final darkTheme = ThemeData.dark().copyWith(
         fontSize: 14,
         fontWeight: FontWeight.normal,
       ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+      ),
     ),
   ),
-  brightness: Brightness.dark,
+  canvasColor: darkSecondContainerColor,
 );
-
-void main() {
-  runApp(ChangeNotifierProvider(
-    create: (context) => ThemeProvider(),
-    child: const MyApp(),
-  ));
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Monlam AI App',
-      theme: Provider.of<ThemeProvider>(context).themeData,
-      themeMode: ThemeMode.system,
-      home: const HomeScreen(),
-    );
-  }
-}

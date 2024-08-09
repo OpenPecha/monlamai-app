@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:monlamai_app/theme/theme_provider.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -8,7 +10,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _darkMode = false;
   String _selectedLanguage = 'English';
 
   @override
@@ -49,7 +50,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               vertical: 8,
             ),
             decoration: BoxDecoration(
-              color: const Color(0xFFFFFFFF),
               border: Border(
                 bottom: BorderSide(
                   color: Colors.grey.shade300,
@@ -68,11 +68,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 Switch(
-                  value: _darkMode,
+                  value: Provider.of<ThemeProvider>(context).isDarkMode,
                   onChanged: (value) {
-                    setState(() {
-                      _darkMode = value;
-                    });
+                    Provider.of<ThemeProvider>(context, listen: false)
+                        .toggleTheme(value);
                   },
                 ),
               ],
@@ -84,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               vertical: 8,
             ),
             decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor,
               border: Border(
                 bottom: BorderSide(
                   color: Colors.grey.shade300,
