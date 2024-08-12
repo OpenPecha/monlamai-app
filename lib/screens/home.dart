@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:monlamai_app/screens/favorites.dart';
 import 'package:monlamai_app/screens/settings.dart';
+import 'package:monlamai_app/screens/translation.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -63,12 +64,16 @@ class HomeScreen extends StatelessWidget {
           horizontal: 20,
           vertical: 16,
         ),
-        child: Column(children: [
-          const TextField(
-            decoration: InputDecoration(
-              hintText: 'Enter text',
-              border: InputBorder.none,
-              hintStyle: TextStyle(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          GestureDetector(
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const TransaltionScreen(),
+              ),
+            ),
+            child: const Text(
+              "Enter text",
+              style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.normal,
               ),
@@ -77,43 +82,15 @@ class HomeScreen extends StatelessWidget {
           const Spacer(),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(16),
-                  ),
-                  child: const Text(
-                    'English',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16.0),
-              const Icon(
+            children: const [
+              LanguageButton(language: "English"),
+              SizedBox(width: 16.0),
+              Icon(
                 Icons.swap_horiz,
                 size: 30,
               ),
-              const SizedBox(width: 16.0),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.all(16),
-                  ),
-                  child: const Text(
-                    'Tibetan',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                    ),
-                  ),
-                ),
-              ),
+              SizedBox(width: 16.0),
+              LanguageButton(language: "Tibetan"),
             ],
           ),
           const SizedBox(height: 16.0),
@@ -146,22 +123,23 @@ class HomeScreen extends StatelessWidget {
 
 class LanguageButton extends StatelessWidget {
   final String language;
-  final bool isSelected;
 
-  const LanguageButton(
-      {super.key, required this.language, required this.isSelected});
+  const LanguageButton({super.key, required this.language});
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        primary: Colors.grey[700],
-      ),
-      child: Text(
-        language,
-        style: const TextStyle(
-          color: Colors.white,
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.all(16),
+        ),
+        child: Text(
+          language,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.normal,
+          ),
         ),
       ),
     );
