@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:monlamai_app/theme/theme.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ThemeProvider extends ChangeNotifier {
-  ThemeData _themeData = lightMode;
-
-  ThemeData get themeData => _themeData;
-
-  set themeData(ThemeData theme) {
-    _themeData = theme;
-    notifyListeners();
-  }
+class ThemeNotifier extends StateNotifier<ThemeData> {
+  ThemeNotifier() : super(lightMode);
 
   void toggleTheme(bool isDark) {
-    _themeData = isDark ? darkMode : lightMode; // Use _themeData
-    notifyListeners(); // Call notifyListeners here
+    state = isDark ? darkMode : lightMode;
   }
 
-  bool get isDarkMode => _themeData == darkMode;
+  ThemeData get themeData => state;
+
+  bool get isDarkMode => state == darkMode;
 }
+
+final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeData>((ref) {
+  return ThemeNotifier();
+});

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:monlamai_app/screens/favorites.dart';
 import 'package:monlamai_app/screens/settings.dart';
+import 'package:monlamai_app/screens/transcribing.dart';
 import 'package:monlamai_app/screens/translation.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -68,7 +69,7 @@ class HomeScreen extends StatelessWidget {
           GestureDetector(
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => const TransaltionScreen(),
+                builder: (context) => TransaltionScreen(),
               ),
             ),
             child: const Text(
@@ -96,23 +97,28 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               CircularIconButton(
-                  icon: Icons.chat_bubble,
-                  padding: 4,
-                  size: 24,
-                  tooltip: "Chat"),
-              CircularIconButton(
+                icon: Icons.chat_bubble,
+                padding: 4,
+                size: 24,
+                tooltip: "Chat",
+                route: TransaltionScreen(),
+              ),
+              const CircularIconButton(
                 icon: Icons.mic,
                 padding: 12,
                 size: 34,
                 tooltip: "Voice Input",
+                route: TranscribingScreen(),
               ),
               CircularIconButton(
-                  icon: Icons.camera_alt,
-                  padding: 4,
-                  size: 24,
-                  tooltip: "Camera"),
+                icon: Icons.camera_alt,
+                padding: 4,
+                size: 24,
+                tooltip: "Camera",
+                route: TransaltionScreen(),
+              ),
             ],
           ),
         ]),
@@ -151,13 +157,16 @@ class CircularIconButton extends StatelessWidget {
   final double padding;
   final double size;
   final String tooltip;
+  final Widget route;
 
-  const CircularIconButton(
-      {super.key,
-      required this.icon,
-      required this.padding,
-      required this.size,
-      required this.tooltip});
+  const CircularIconButton({
+    super.key,
+    required this.icon,
+    required this.padding,
+    required this.size,
+    required this.tooltip,
+    required this.route,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +183,13 @@ class CircularIconButton extends StatelessWidget {
           size: size,
         ),
         color: const Color(0xFF202020),
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => route,
+            ),
+          );
+        },
         tooltip: tooltip,
       ),
     );

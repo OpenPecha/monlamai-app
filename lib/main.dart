@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/screens/home.dart';
 import 'package:monlamai_app/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
@@ -72,23 +73,25 @@ final darkTheme = ThemeData.dark().copyWith(
   brightness: Brightness.dark,
 );
 
+// with Riverpod scope
 void main() {
-  runApp(ChangeNotifierProvider(
-    create: (context) => ThemeProvider(),
-    child: const MyApp(),
+  runApp(const ProviderScope(
+    child: MyApp(),
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentTheme = ref.watch(themeProvider);
+
     return MaterialApp(
       title: 'Monlam AI App',
-      theme: Provider.of<ThemeProvider>(context).themeData,
-      themeMode: ThemeMode.system,
+      theme: currentTheme,
+      // themeMode: ThemeMode.system,
       home: const HomeScreen(),
     );
   }

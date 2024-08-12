@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:monlamai_app/theme/theme.dart';
 import 'package:monlamai_app/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _selectedLanguage = 'English';
 
   @override
@@ -68,11 +70,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 Switch(
-                  value: Provider.of<ThemeProvider>(context).isDarkMode,
+                  value: ref.watch(themeProvider.notifier).isDarkMode,
                   onChanged: (value) {
-                    Provider.of<ThemeProvider>(context, listen: false)
-                        .toggleTheme(value);
+                    ref.read(themeProvider.notifier).toggleTheme(value);
                   },
+                  activeColor: Theme.of(context).colorScheme.secondary,
                 ),
               ],
             ),
