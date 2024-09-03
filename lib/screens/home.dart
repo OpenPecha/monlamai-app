@@ -3,6 +3,7 @@ import 'package:monlamai_app/screens/favorites.dart';
 import 'package:monlamai_app/screens/settings.dart';
 import 'package:monlamai_app/screens/transcribing.dart';
 import 'package:monlamai_app/screens/translation.dart';
+import 'package:monlamai_app/widgets/language_toggle.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -81,23 +82,11 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              LanguageButton(language: "English"),
-              SizedBox(width: 16.0),
-              Icon(
-                Icons.swap_horiz,
-                size: 30,
-              ),
-              SizedBox(width: 16.0),
-              LanguageButton(language: "Tibetan"),
-            ],
-          ),
+          const LanguageToggle(),
           const SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: const [
               CircularIconButton(
                 icon: Icons.chat_bubble,
                 padding: 4,
@@ -105,7 +94,7 @@ class HomeScreen extends StatelessWidget {
                 tooltip: "Chat",
                 route: TransaltionScreen(),
               ),
-              const CircularIconButton(
+              CircularIconButton(
                 icon: Icons.mic,
                 padding: 12,
                 size: 34,

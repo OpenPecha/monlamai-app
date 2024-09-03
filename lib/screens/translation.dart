@@ -79,13 +79,19 @@ class _TransaltionScreenState extends State<TransaltionScreen> {
         ),
         child: Column(children: [
           TextField(
+            minLines: 1,
+            maxLines: 5,
             autofocus: true,
             controller: _inputController,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
             decoration: const InputDecoration(
               hintText: 'Enter text',
               border: InputBorder.none,
               hintStyle: TextStyle(
-                fontSize: 22,
+                fontSize: 20,
                 fontWeight: FontWeight.normal,
               ),
             ),
@@ -100,13 +106,49 @@ class _TransaltionScreenState extends State<TransaltionScreen> {
               EnterDisablerInputFormatter(_isTextEmpty),
             ],
           ),
+          const SizedBox(height: 8.0),
+          Row(
+            children: const [
+              Icon(
+                Icons.volume_up,
+              ),
+              Spacer(),
+              Icon(
+                Icons.copy_outlined,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8.0),
+          const Divider(
+            thickness: 1,
+            height: 1,
+            color: Color(0xFF0C53C5),
+            indent: 20,
+            endIndent: 20,
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16.0),
+            child: Text(
+              'translating ...',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+          ),
+          const Text(
+            "ང་ཚོ་ཡུལ་ལ་མ་ལོག་པའི་སྔོན་ལ་ང་ཚོས་ངེས་པར་དུ་བྱ་བ་ཁ་ཤས ང་ཚོ་ཡུལ་ལ་མ་ལོག་པའི་སྔོན་ལ་ང་ཚོས་ངེས་པར་དུ་བྱ་བ་ཁ་ཤས",
+            softWrap: true,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
           !_isTextEmpty && _isTranslating
-              ? const Text(
-                  'Enter text',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.normal,
-                  ),
+              ? const Divider(
+                  thickness: 1,
+                  height: 1,
+                  color: Color(0xFF0C53C5),
                 )
               : Container(),
           const Spacer(),
