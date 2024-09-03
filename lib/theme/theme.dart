@@ -40,7 +40,7 @@ ThemeData lightMode = ThemeData(
         fontWeight: FontWeight.normal,
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(12),
       ),
     ),
   ),
