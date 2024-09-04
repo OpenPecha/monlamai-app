@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:monlamai_app/screens/home.dart';
+import 'package:monlamai_app/widgets/audio_recording_s3.dart';
+import 'package:monlamai_app/widgets/language_toggle.dart';
 
-class TranscribingScreen extends StatelessWidget {
+class TranscribingScreen extends StatefulWidget {
   const TranscribingScreen({super.key});
+
+  @override
+  State<TranscribingScreen> createState() => _TranscribingScreenState();
+}
+
+class _TranscribingScreenState extends State<TranscribingScreen> {
+  bool _isRecording = false;
+
+  void toggleRecording() {
+    // Handle recording toggle
+    setState(() {
+      _isRecording = !_isRecording;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,52 +40,43 @@ class TranscribingScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _isRecording
+                  ? const Text(
+                      'Listening ....',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.grey,
+                      ),
+                    )
+                  : const Text(
+                      'Press the microphone button to start recording',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.grey,
+                      ),
+                    ),
+            ],
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Listening ....',
-              style: TextStyle(
-                fontSize: 22,
-                color: Colors.grey,
-              ),
-            ),
-            const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                LanguageButton(language: 'English'),
-                SizedBox(width: 16.0),
-                Icon(
-                  Icons.swap_horiz,
-                  size: 30,
-                ),
-                SizedBox(width: 16.0),
-                LanguageButton(language: 'Tibetan'),
-              ],
-            ),
-            const SizedBox(height: 16.0),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Center(
-                child: FloatingActionButton(
-                  onPressed: () {
-                    // Handle microphone button press
-                  },
-                  child: const Icon(
-                    Icons.square_rounded,
-                    size: 35,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      ),
+      bottomSheet: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const LanguageToggle(),
+          AudioRecordingS3Widget(
+            isRecording: _isRecording,
+            toggleRecording: toggleRecording,
+          ),
+        ]),
       ),
     );
   }

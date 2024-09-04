@@ -26,8 +26,12 @@ class LanguageToggle extends ConsumerWidget {
           Expanded(
             child: ButtonWrapper(
               value: sourceLang,
-              onChanged: (value) =>
-                  ref.read(sourceLanguageProvider.notifier).state = value,
+              onChanged: (value) => {
+                if (ref.read(targetLanguageProvider.notifier).state == value)
+                  {handleSwapLanguages()}
+                else
+                  {ref.read(sourceLanguageProvider.notifier).state = value}
+              },
             ),
           ),
           IconButton(
@@ -37,8 +41,12 @@ class LanguageToggle extends ConsumerWidget {
           Expanded(
             child: ButtonWrapper(
               value: targetLang,
-              onChanged: (value) =>
-                  ref.read(targetLanguageProvider.notifier).state = value,
+              onChanged: (value) => {
+                if (ref.read(sourceLanguageProvider.notifier).state == value)
+                  {handleSwapLanguages()}
+                else
+                  {ref.read(targetLanguageProvider.notifier).state = value}
+              },
             ),
           ),
         ],

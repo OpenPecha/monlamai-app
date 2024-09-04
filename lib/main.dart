@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/screens/home.dart';
 import 'package:monlamai_app/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // light bg color
 const lightBgColor = Color(0xFFF2F2F2);
@@ -74,7 +75,8 @@ final darkTheme = ThemeData.dark().copyWith(
 );
 
 // with Riverpod scope
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const ProviderScope(
     child: MyApp(),
   ));
