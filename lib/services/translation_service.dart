@@ -1,14 +1,16 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class TranslationService {
   final String _apiUrl = dotenv.env["TRANSLATON_API_URL"]
       .toString(); // Replace with your API endpoint
-  final String _apiKey = 'YOUR_API_KEY'; // If your API requires authentication
+  final String _apiKey = dotenv.env["API_AUTH_TOKEN"]
+      .toString(); // If your API requires authentication
 
   // Function to translate text with input and target language
-  Future<Map<String, dynamic>> translateText(
+  Future<Map<String, dynamic>> mockTranslateText(
       String inputText, String targetLanguage) async {
     String translatedText =
         await _mockTranslationModel(inputText, targetLanguage);
@@ -31,7 +33,7 @@ class TranslationService {
     return "Translated [$targetLanguage]: $inputText"; // Simulated translated text
   }
 
-  Future<Map<String, dynamic>> translateText2(
+  Future<Map<String, dynamic>> translateText(
       String inputText, String targetLanguage) async {
     try {
       // Make the HTTP POST request
@@ -41,21 +43,23 @@ class TranslationService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $_apiKey', // If required
         },
-        body: jsonEncode(
-          {
-            'inpur': inputText,
-            'target': targetLanguage,
-          },
-        ),
+        body: jsonEncode({
+          'input': inputText,
+          'target': targetLanguage,
+        }),
       );
+
+      // Parse the response JSON
+      Map<String, dynamic> responseData = jsonDecode(response.body);
 
       // Check for successful response
       if (response.statusCode == 200) {
-        // Parse the response JSON
-        Map<String, dynamic> responseData = jsonDecode(response.body);
+        // Return the translated text
+        final decodedTranslation =
+            utf8.decode(responseData['translation'].codeUnits);
         return {
           "succes": true,
-          "translated_text": responseData["translated_text"],
+          'translatedText': decodedTranslation,
         };
       } else {
         // Handle unsuccessful response

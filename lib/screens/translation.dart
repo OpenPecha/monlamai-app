@@ -156,6 +156,7 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
           const SizedBox(height: 16.0),
           !_isTextEmpty && translatedText.isNotEmpty
               ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(
