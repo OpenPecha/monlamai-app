@@ -1,22 +1,25 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/screens/home.dart';
+import 'package:monlamai_app/services/translation_service.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
 import 'package:monlamai_app/widgets/translation_input.dart';
 
-class TransaltionScreen extends StatefulWidget {
+class TransaltionScreen extends ConsumerStatefulWidget {
   const TransaltionScreen({super.key});
 
   @override
-  State<TransaltionScreen> createState() => _TransaltionScreenState();
+  ConsumerState<TransaltionScreen> createState() => _TransaltionScreenState();
 }
 
-class _TransaltionScreenState extends State<TransaltionScreen> {
+class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
   late TextEditingController _inputController = TextEditingController();
+  final TranslationService _translationService = TranslationService();
   bool _isTextEmpty = true;
-  bool _isTranslating = false;
-  bool _isTranslated = false;
+  String translatedText = '';
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -38,22 +41,31 @@ class _TransaltionScreenState extends State<TransaltionScreen> {
     super.dispose();
   }
 
-  void handleSubmit(String value) {
-    // should send the input to api for translation
-    log('Submitted: $value');
+  Future<void> translate(String inputText, String targetLanguage) async {
+    log('Translating: $inputText to $targetLanguage');
     setState(() {
-      _isTranslating = true;
+      isLoading = true;
     });
-    Future.delayed(const Duration(seconds: 2), () {
+
+    try {
+      Map<String, dynamic> translationResult =
+          await _translationService.translateText(inputText, targetLanguage);
       setState(() {
-        _isTranslating = false;
-        _isTranslated = true;
+        translatedText = translationResult['translatedText'];
       });
-    });
+    } catch (error) {
+      // Handle error
+      log("Translation error: $error");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final targetLang = ref.watch(targetLanguageProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -97,12 +109,14 @@ class _TransaltionScreenState extends State<TransaltionScreen> {
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           TranslationInput(
-            handleSubmit: handleSubmit,
+            translate: translate,
+            // handleSubmit: handleSubmit,
             isTextEmpty: _isTextEmpty,
             inputController: _inputController,
+            targetLang: targetLang,
           ),
           const SizedBox(height: 8.0),
-          !_isTextEmpty && _isTranslated
+          !_isTextEmpty && translatedText.isNotEmpty
               ? Row(
                   children: [
                     IconButton(
@@ -127,7 +141,7 @@ class _TransaltionScreenState extends State<TransaltionScreen> {
                   endIndent: 20,
                 )
               : Container(),
-          !_isTextEmpty && _isTranslating
+          !_isTextEmpty && isLoading
               ? const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16.0),
                   child: Text(
@@ -140,18 +154,18 @@ class _TransaltionScreenState extends State<TransaltionScreen> {
                 )
               : Container(),
           const SizedBox(height: 16.0),
-          !_isTextEmpty && _isTranslated
+          !_isTextEmpty && translatedText.isNotEmpty
               ? Column(
                   children: [
-                    const Padding(
-                      padding: EdgeInsets.symmetric(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
                         vertical: 0,
                         horizontal: 16,
                       ),
                       child: Text(
-                        "ང་ཚོ་ཡུལ་ལ་མ་ལོག་པའི་སྔོན་ལ་ང་ཚོས་ངེས་པར་དུ་བྱ་བ་ཁ་ཤས ང་ཚོ་ཡུལ་ལ་མ་ལོག་པའི་སྔོན་ལ་ང་ཚོས་ངེས་པར་དུ་བྱ་བ་ཁ་ཤས",
+                        translatedText,
                         softWrap: true,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
                         ),
@@ -184,7 +198,7 @@ class _TransaltionScreenState extends State<TransaltionScreen> {
           // const Spacer(),
         ]),
       ),
-      bottomSheet: !_isTextEmpty && _isTranslated
+      bottomSheet: !_isTextEmpty && translatedText.isNotEmpty
           ? Container(
               margin: const EdgeInsets.all(16.0),
               child: Row(

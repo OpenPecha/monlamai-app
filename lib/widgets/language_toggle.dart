@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final sourceLanguageProvider = StateProvider<String>((ref) => 'English');
-final targetLanguageProvider = StateProvider<String>((ref) => 'Tibetan');
+final sourceLanguageProvider = StateProvider<String>((ref) => 'en');
+final targetLanguageProvider = StateProvider<String>((ref) => 'bo');
 
 class LanguageToggle extends ConsumerWidget {
   const LanguageToggle({Key? key}) : super(key: key);
@@ -25,7 +25,12 @@ class LanguageToggle extends ConsumerWidget {
         children: [
           Expanded(
             child: ButtonWrapper(
-              value: sourceLang,
+              value: languageSupported
+                  .firstWhere(
+                    (lang) => lang.code == sourceLang,
+                    orElse: () => languageSupported.first,
+                  )
+                  .name,
               onChanged: (value) => {
                 if (ref.read(targetLanguageProvider.notifier).state == value)
                   {handleSwapLanguages()}
@@ -40,7 +45,12 @@ class LanguageToggle extends ConsumerWidget {
           ),
           Expanded(
             child: ButtonWrapper(
-              value: targetLang,
+              value: languageSupported
+                  .firstWhere(
+                    (lang) => lang.code == targetLang,
+                    orElse: () => languageSupported.first,
+                  )
+                  .name,
               onChanged: (value) => {
                 if (ref.read(sourceLanguageProvider.notifier).state == value)
                   {handleSwapLanguages()}
@@ -90,7 +100,7 @@ class _ButtonWrapperState extends State<ButtonWrapper> {
                         ),
                       ),
                       onPressed: () {
-                        widget.onChanged(lang.name);
+                        widget.onChanged(lang.code);
                         _menuController.close();
                       },
                       child: Align(

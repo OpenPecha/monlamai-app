@@ -4,14 +4,18 @@ import 'package:flutter/services.dart';
 class TranslationInput extends StatelessWidget {
   const TranslationInput({
     super.key,
-    required this.handleSubmit,
+    required this.translate,
+    // required this.handleSubmit,
     required this.isTextEmpty,
     required this.inputController,
+    required this.targetLang,
   });
 
   final bool isTextEmpty;
   final TextEditingController inputController;
-  final void Function(String) handleSubmit;
+  // final void Function(String, String) handleSubmit;
+  final String targetLang;
+  final void Function(String, String) translate;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +50,9 @@ class TranslationInput extends StatelessWidget {
                 ),
               ),
               textInputAction: TextInputAction.done,
-              onSubmitted: handleSubmit,
+              onSubmitted: (value) {
+                translate(value, targetLang);
+              },
               inputFormatters: [
                 EnterDisablerInputFormatter(isTextEmpty),
               ],
