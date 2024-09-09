@@ -36,12 +36,13 @@ dependencies:
   cupertino_icons: ^1.0.2
   provider: ^6.1.2
   flutter_riverpod: ^2.3.7
-  http: ^0.13.5
+  http: ^1.2.2
   path_provider: ^2.0.11
-  record: ^4.4.4
+  record: ^5.0.5
   flutter_dotenv: ^5.1.0
   uuid: ^4.1.0
   aws_s3_upload: ^1.5.0
+  aws_s3_upload_lite: ^0.0.1
 
 dev_dependencies:
   flutter_test:
