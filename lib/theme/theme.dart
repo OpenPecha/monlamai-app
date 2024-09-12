@@ -45,6 +45,9 @@ ThemeData lightMode = ThemeData(
     ),
   ),
   canvasColor: secondContainerColor,
+  bottomSheetTheme: const BottomSheetThemeData(
+    backgroundColor: lightBgColor,
+  ),
 );
 
 ThemeData darkMode = ThemeData(
@@ -80,4 +83,7 @@ ThemeData darkMode = ThemeData(
     ),
   ),
   canvasColor: darkSecondContainerColor,
+  bottomSheetTheme: const BottomSheetThemeData(
+    backgroundColor: darkBgColor,
+  ),
 );

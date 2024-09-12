@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:monlamai_app/screens/conversation.dart';
 import 'package:monlamai_app/screens/favorites.dart';
 import 'package:monlamai_app/screens/ocr_screen.dart';
 import 'package:monlamai_app/screens/settings.dart';
@@ -71,7 +72,7 @@ class HomeScreen extends StatelessWidget {
           GestureDetector(
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (context) => TransaltionScreen(),
+                builder: (context) => const TransaltionScreen(),
               ),
             ),
             child: const Text(
@@ -93,7 +94,7 @@ class HomeScreen extends StatelessWidget {
                 padding: 4,
                 size: 24,
                 tooltip: "Chat",
-                route: TransaltionScreen(),
+                route: ConversationScreen(),
               ),
               const CircularIconButton(
                 icon: Icons.mic,

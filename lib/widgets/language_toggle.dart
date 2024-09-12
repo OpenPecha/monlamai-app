@@ -17,9 +17,8 @@ class LanguageToggle extends ConsumerWidget {
       ref.read(targetLanguageProvider.notifier).state = sourceLang;
     }
 
-    return Container(
-      height: 80,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+    return SizedBox(
+      height: 50,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -84,8 +83,18 @@ class _ButtonWrapperState extends State<ButtonWrapper> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return MenuAnchor(
-          alignmentOffset: Offset(0,
-              -constraints.maxHeight * languageSupported.length.toDouble() - 5),
+          style: MenuStyle(
+            backgroundColor: WidgetStateProperty.all(Colors.grey[800]!),
+            shape: WidgetStateProperty.all(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          alignmentOffset: Offset(
+              0,
+              -constraints.maxHeight * languageSupported.length.toDouble() -
+                  65),
           controller: _menuController,
           menuChildren: languageSupported
               .map((lang) => SizedBox(
