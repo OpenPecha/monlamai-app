@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:monlamai_app/theme/theme.dart';
 import 'package:monlamai_app/theme/theme_provider.dart';
-import 'package:provider/provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -13,6 +11,7 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   String _selectedLanguage = 'English';
+  final MenuController _menuController = MenuController();
 
   @override
   Widget build(BuildContext context) {
@@ -33,15 +32,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           "Settings",
           style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.star),
-            onPressed: () {
-              // do something
-            },
-            tooltip: 'Favorite',
-          ),
-        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,6 +42,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               vertical: 8,
             ),
             decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
               border: Border(
                 bottom: BorderSide(
                   color: Colors.grey.shade300,
@@ -59,6 +50,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
             ),
+            height: 50,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -81,7 +73,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           Container(
             padding: const EdgeInsets.symmetric(
-              horizontal: 20,
+              horizontal: 10,
               vertical: 8,
             ),
             decoration: BoxDecoration(
@@ -93,30 +85,59 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
             ),
+            width: double.infinity,
+            height: 50,
             child: Row(
               children: [
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    elevation: 2,
-                    value: _selectedLanguage,
-                    items: ['English', 'Tibetan']
-                        .map((language) => DropdownMenuItem(
-                              value: language,
-                              child: Text(
-                                language,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.normal,
+                MenuAnchor(
+                  controller: _menuController,
+                  alignmentOffset: const Offset(6, 10),
+                  menuChildren: ["English", "Tibetan"]
+                      .map((lang) => SizedBox(
+                            width: double.infinity,
+                            child: MenuItemButton(
+                              style: ButtonStyle(
+                                // minimumSize: WidgetStateProperty.all(
+                                //   Size(constraints.maxWidth, 48),
+                                // ),
+                                textStyle: WidgetStateProperty.all(
+                                  const TextStyle(fontSize: 16),
                                 ),
                               ),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedLanguage = value!;
-                      });
-                    },
-                  ),
+                              onPressed: () {
+                                setState(() {
+                                  _selectedLanguage = lang;
+                                });
+                                _menuController.close();
+                              },
+                              child: Align(
+                                alignment: Alignment.center,
+                                child: Text(lang),
+                              ),
+                            ),
+                          ))
+                      .toList(),
+                  builder: (BuildContext context, MenuController controller,
+                      Widget? child) {
+                    return TextButton.icon(
+                      label: Text(
+                        _selectedLanguage,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      icon: const Icon(Icons.language),
+                      iconAlignment: IconAlignment.end,
+                      onPressed: () {
+                        if (controller.isOpen) {
+                          controller.close();
+                        } else {
+                          controller.open();
+                        }
+                      },
+                    );
+                  },
                 ),
               ],
             ),

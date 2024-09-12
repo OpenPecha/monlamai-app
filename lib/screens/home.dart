@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:monlamai_app/screens/favorites.dart';
+import 'package:monlamai_app/screens/ocr_screen.dart';
 import 'package:monlamai_app/screens/settings.dart';
 import 'package:monlamai_app/screens/transcribing.dart';
 import 'package:monlamai_app/screens/translation.dart';
@@ -86,15 +87,15 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              CircularIconButton(
+            children: [
+              const CircularIconButton(
                 icon: Icons.chat_bubble,
                 padding: 4,
                 size: 24,
                 tooltip: "Chat",
                 route: TransaltionScreen(),
               ),
-              CircularIconButton(
+              const CircularIconButton(
                 icon: Icons.mic,
                 padding: 12,
                 size: 34,
@@ -106,7 +107,7 @@ class HomeScreen extends StatelessWidget {
                 padding: 4,
                 size: 24,
                 tooltip: "Camera",
-                route: TransaltionScreen(),
+                route: OcrScreen(),
               ),
             ],
           ),

@@ -92,10 +92,10 @@ class _ButtonWrapperState extends State<ButtonWrapper> {
                     width: constraints.maxWidth,
                     child: MenuItemButton(
                       style: ButtonStyle(
-                        minimumSize: MaterialStateProperty.all(
+                        minimumSize: WidgetStateProperty.all(
                           Size(constraints.maxWidth, 48),
                         ),
-                        textStyle: MaterialStateProperty.all(
+                        textStyle: WidgetStateProperty.all(
                           const TextStyle(fontSize: 16),
                         ),
                       ),

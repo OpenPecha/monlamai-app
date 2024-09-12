@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:monlamai_app/widgets/audio_recording_s3.dart';
+import 'package:monlamai_app/widgets/audio_recording.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
 
 class TranscribingScreen extends StatefulWidget {

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/screens/home.dart';
 import 'package:monlamai_app/services/translation_service.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
+import 'package:monlamai_app/widgets/speaker.dart';
 import 'package:monlamai_app/widgets/translation_input.dart';
 
 class TransaltionScreen extends ConsumerStatefulWidget {
@@ -66,6 +67,7 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
   @override
   Widget build(BuildContext context) {
     final targetLang = ref.watch(targetLanguageProvider);
+    final sourceLang = ref.watch(sourceLanguageProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -119,9 +121,9 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
           !_isTextEmpty && translatedText.isNotEmpty
               ? Row(
                   children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.volume_up),
+                    SpeakerWidget(
+                      text: _inputController.text,
+                      language: sourceLang,
                     ),
                     const Spacer(),
                     IconButton(
