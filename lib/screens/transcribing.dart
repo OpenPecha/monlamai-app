@@ -72,10 +72,10 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const LanguageToggle(),
-          AudioRecordingS3Widget(
-            isRecording: _isRecording,
-            toggleRecording: toggleRecording,
-          ),
+          const AudioRecordingWidget(
+              // isRecording: _isRecording,
+              // toggleRecording: toggleRecording,
+              ),
         ]),
       ),
     );

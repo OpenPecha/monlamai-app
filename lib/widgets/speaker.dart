@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:monlamai_app/services/tts_service.dart';
 import 'package:monlamai_app/widgets/audio_player.dart';
 
@@ -22,8 +23,51 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
   bool _isLoading = false;
   String? _audioUrl;
   String? _errorMessage;
+  bool isTtsInitialized = false;
+  late FlutterTts flutterTts;
 
   final TtsService ttsService = TtsService();
+
+  @override
+  void initState() {
+    super.initState();
+    initTTS();
+  }
+
+  @override
+  void dispose() {
+    flutterTts.stop();
+    super.dispose();
+  }
+
+  Future<void> initTTS() async {
+    flutterTts = FlutterTts();
+    try {
+      await flutterTts.setLanguage("en-US");
+      await flutterTts.setPitch(1.0);
+      await flutterTts.setSpeechRate(0.5);
+      setState(() {
+        isTtsInitialized = true;
+      });
+    } catch (e) {
+      log("TTS initialization failed: $e");
+      // Handle the error, perhaps show a dialog to the user
+    }
+  }
+
+  Future<void> speak(String text) async {
+    if (isTtsInitialized) {
+      try {
+        await flutterTts.speak(text);
+      } catch (e) {
+        log("TTS speak failed: $e");
+        // Handle the error, perhaps show a dialog to the user
+      }
+    } else {
+      log("TTS not initialized");
+      // Inform the user that TTS is not ready
+    }
+  }
 
   Future<void> _fetchAudioUrl() async {
     setState(() {
@@ -65,7 +109,11 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
       return IconButton(
         icon: const Icon(Icons.error),
         onPressed: () {
-          // _fetchAudioUrl();
+          if (widget.language == "en" && isTtsInitialized) {
+            speak(widget.text);
+          } else {
+            _fetchAudioUrl();
+          }
         },
         tooltip: _errorMessage,
       );
@@ -75,7 +123,11 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
       return IconButton(
         icon: const Icon(Icons.volume_up),
         onPressed: () {
-          // _fetchAudioUrl();
+          if (widget.language == 'en') {
+            speak(widget.text);
+          } else {
+            _fetchAudioUrl();
+          }
         },
       );
     }

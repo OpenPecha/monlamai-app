@@ -177,10 +177,9 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                     const SizedBox(height: 8.0),
                     Row(
                       children: [
-                        IconButton(
-                          padding: EdgeInsets.zero,
-                          onPressed: () {},
-                          icon: const Icon(Icons.volume_up),
+                        SpeakerWidget(
+                          text: translatedText,
+                          language: targetLang,
                         ),
                         const Spacer(),
                         IconButton(

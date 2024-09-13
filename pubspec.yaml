@@ -38,13 +38,13 @@ dependencies:
   flutter_riverpod: ^2.3.7
   http: ^1.2.2
   path_provider: ^2.0.11
-  record: ^5.1.2
   flutter_dotenv: ^5.1.0
   uuid: ^4.1.0
   camera: ^0.11.0+2
   permission_handler: ^11.3.1
   just_audio: ^0.9.40
-  flutter_sound: ^9.12.44
+  flutter_sound: ^9.15.58
+  flutter_tts: ^4.0.2
 
 dev_dependencies:
   flutter_test:
