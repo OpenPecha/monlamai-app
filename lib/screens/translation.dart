@@ -127,7 +127,14 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                     ),
                     const Spacer(),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(text: _inputController.text),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Text copied')),
+                        );
+                      },
                       icon: const Icon(Icons.copy_outlined),
                     ),
                   ],
@@ -184,7 +191,14 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                         const Spacer(),
                         IconButton(
                           padding: EdgeInsets.zero,
-                          onPressed: () {},
+                          onPressed: () {
+                            Clipboard.setData(
+                              ClipboardData(text: translatedText),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Text copied')),
+                            );
+                          },
                           icon: const Icon(Icons.copy_outlined),
                         ),
                         IconButton(
