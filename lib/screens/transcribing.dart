@@ -58,7 +58,7 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
                       ),
                     )
                   : const Text(
-                      'Press the microphone button to start recording',
+                      'Tap the mic button to start',
                       style: TextStyle(
                         fontSize: 22,
                         color: Colors.grey,
@@ -72,10 +72,10 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const LanguageToggle(),
-          const AudioRecordingWidget(
-              // isRecording: _isRecording,
-              // toggleRecording: toggleRecording,
-              ),
+          AudioRecordingWidget(
+            isRecording: _isRecording,
+            toggleRecording: toggleRecording,
+          ),
         ]),
       ),
     );

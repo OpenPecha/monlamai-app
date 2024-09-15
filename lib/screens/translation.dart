@@ -203,7 +203,13 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                         ),
                         IconButton(
                           padding: EdgeInsets.zero,
-                          onPressed: () {},
+                          onPressed: () {
+                            // send feedback to the server
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Thanks for the feedback')),
+                            );
+                          },
                           icon: const Icon(Icons.thumb_up),
                         ),
                       ],

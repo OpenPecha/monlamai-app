@@ -3,6 +3,7 @@ import 'package:monlamai_app/screens/conversation.dart';
 import 'package:monlamai_app/screens/favorites.dart';
 import 'package:monlamai_app/screens/ocr_screen.dart';
 import 'package:monlamai_app/screens/settings.dart';
+import 'package:monlamai_app/screens/simple_recorder.dart';
 import 'package:monlamai_app/screens/transcribing.dart';
 import 'package:monlamai_app/screens/translation.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
@@ -86,17 +87,17 @@ class HomeScreen extends StatelessWidget {
           const Spacer(),
           const LanguageToggle(),
           const SizedBox(height: 16.0),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const CircularIconButton(
+              CircularIconButton(
                 icon: Icons.chat_bubble,
                 padding: 4,
                 size: 24,
                 tooltip: "Chat",
                 route: ConversationScreen(),
               ),
-              const CircularIconButton(
+              CircularIconButton(
                 icon: Icons.mic,
                 padding: 12,
                 size: 34,

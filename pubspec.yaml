@@ -19,7 +19,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.19.2 <3.0.0"
+  sdk: ^3.3.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -45,6 +45,7 @@ dependencies:
   just_audio: ^0.9.40
   flutter_sound: ^9.15.58
   flutter_tts: ^4.0.2
+  audio_session: ^0.1.21
 
 dev_dependencies:
   flutter_test:

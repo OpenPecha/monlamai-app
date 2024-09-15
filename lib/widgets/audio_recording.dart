@@ -5,9 +5,15 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
+import 'package:audio_session/audio_session.dart';
 
 class AudioRecordingWidget extends StatefulWidget {
-  const AudioRecordingWidget({Key? key}) : super(key: key);
+  const AudioRecordingWidget(
+      {Key? key, required this.isRecording, required this.toggleRecording})
+      : super(key: key);
+
+  final bool isRecording;
+  final Function toggleRecording;
 
   @override
   State<AudioRecordingWidget> createState() => _AudioRecordingWidgetState();
@@ -15,7 +21,6 @@ class AudioRecordingWidget extends StatefulWidget {
 
 class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
   FlutterSoundRecorder? _recorder = FlutterSoundRecorder();
-  bool _isRecording = false;
   String _audioPath = '';
   bool _recorderIsInited = false;
 
@@ -23,62 +28,55 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
   void initState() {
     super.initState();
     _initializeRecorder();
-    // .then((value) {
-    //   setState(() {
-    //     _recorderIsInited = true;
-    //   });
-    // });
   }
 
   @override
   void dispose() {
     _recorder!.closeRecorder();
+    _recorder!.deleteRecord(fileName: _audioPath);
     _recorder = null;
     super.dispose();
   }
 
   Future<void> _initializeRecorder() async {
-    var status = await Permission.microphone.request();
-    if (status != PermissionStatus.granted) {
-      log('Microphone permission not granted $status');
-      // throw RecordingPermissionException('Microphone permission not granted');
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Microphone Permission Required'),
-          content: const Text(
-              'Please enable microphone permission in your device settings to use this feature.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                openAppSettings();
-                Navigator.of(context).pop();
-              },
-              child: const Text('Open Settings'),
-            ),
-          ],
-        ),
-      );
-    }
+    await _requestMicrophonePermission();
     await _recorder!.openRecorder();
-    _recorderIsInited = true;
+
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions:
+          AVAudioSessionCategoryOptions.allowBluetooth |
+              AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AVAudioSessionMode.spokenAudio,
+      avAudioSessionRouteSharingPolicy:
+          AVAudioSessionRouteSharingPolicy.defaultPolicy,
+      avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+      androidAudioAttributes: const AndroidAudioAttributes(
+        contentType: AndroidAudioContentType.speech,
+        flags: AndroidAudioFlags.none,
+        usage: AndroidAudioUsage.voiceCommunication,
+      ),
+      androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
+      androidWillPauseWhenDucked: true,
+    ));
+
+    // check if the recorder is initialized
+    setState(() {
+      _recorderIsInited = true;
+    });
   }
 
-  Future<bool> _requestMicrophonePermission() async {
+  Future<void> _requestMicrophonePermission() async {
     final status = await Permission.microphone.request();
-    if (status.isGranted) {
-      return true;
-    } else if (status.isPermanentlyDenied) {
+    if (!status.isGranted) {
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Microphone Permission Required'),
+          title: const Text('Can\'t access microphone'),
           content: const Text(
-              'Please enable microphone permission in your device settings to use this feature.'),
+            "Monlam AI app needs permission to use the microphone.",
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -89,31 +87,34 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
                 openAppSettings();
                 Navigator.of(context).pop();
               },
-              child: const Text('Open Settings'),
+              child: const Text('Allow access'),
             ),
           ],
         ),
       );
     }
-    return false;
   }
 
   void startRecording() async {
-    log("Starting recording ${_recorder!.isRecording}");
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      _audioPath = '${directory.path}/${const Uuid().v4()}.wav';
-      await _recorder!.startRecorder(toFile: _audioPath);
+      Directory tempDir = await getTemporaryDirectory();
+      _audioPath = '${tempDir.path}/${const Uuid().v4()}.wav';
+      log("Audio path: $_audioPath");
+      await _recorder!.startRecorder(
+        toFile: _audioPath,
+        codec: Codec.pcm16WAV,
+      );
+      widget.toggleRecording();
     } catch (e) {
       log('Error starting recording: $e');
     }
   }
 
   void stopRecording() async {
-    log("Stopping recording ${_recorder!.isRecording}");
     try {
       String? path = await _recorder!.stopRecorder();
       log('Recording stopped: $path');
+      widget.toggleRecording();
       await _sendAudio();
     } catch (e) {
       log('Error stopping recording: $e');
@@ -125,27 +126,7 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
       log('Recorder is not initialized');
       return;
     }
-    return _recorder!.isStopped ? stopRecording() : startRecording();
-    // final hasPermission = await _requestMicrophonePermission();
-    // if (!hasPermission) return;
-
-    // try {
-    //   final directory = await getApplicationDocumentsDirectory();
-    //   _audioPath = '${directory.path}/${const Uuid().v4()}.wav';
-    //   await _recorder.startRecorder(toFile: _audioPath);
-    //   setState(() => _isRecording = true);
-    // } catch (e) {
-    //   log('Error starting recording: $e');
-    // }
-    // } else {
-    //   try {
-    //     await _recorder.stopRecorder();
-    //     setState(() => _isRecording = false);
-    //     await _sendAudio();
-    //   } catch (e) {
-    //     log('Error stopping recording: $e');
-    //   }
-    // }
+    return _recorder!.isStopped ? startRecording() : stopRecording();
   }
 
   Future<void> _sendAudio() async {
@@ -164,7 +145,8 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
     }
 
     try {
-      // Here you would implement the logic to send the audio file to S3
+      // send the audio file to the server
+
       // For example:
       log("Audio file ready for upload: $_audioPath");
     } catch (e) {
@@ -185,7 +167,7 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
                 toggleRecording();
               },
               child: Icon(
-                _recorder!.isRecording ? Icons.stop : Icons.mic,
+                widget.isRecording ? Icons.stop : Icons.mic,
                 size: 35,
               ),
             ),

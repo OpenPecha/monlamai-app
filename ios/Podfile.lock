@@ -4,10 +4,10 @@ PODS:
   - camera_avfoundation (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - flutter_sound (9.15.58):
+  - flutter_sound (9.15.61):
     - Flutter
-    - flutter_sound_core (= 9.15.58)
-  - flutter_sound_core (9.15.58)
+    - flutter_sound_core (= 9.15.61)
+  - flutter_sound_core (9.15.61)
   - flutter_tts (0.0.1):
     - Flutter
   - just_audio (0.0.1):
@@ -54,13 +54,13 @@ SPEC CHECKSUMS:
   audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   camera_avfoundation: dd002b0330f4981e1bbcb46ae9b62829237459a4
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_sound: ad23dbdc4eb716ef461b2dc56884fe0fd621b513
-  flutter_sound_core: 27b550c5e7ad14c4b59c58cf331ffe935b2424d6
+  flutter_sound: d7d14b36498f44ebd5fd171c9df95f7c58ddbf03
+  flutter_sound_core: d6d7b1bf19952739e984f7d8967495126d05a1ac
   flutter_tts: 0f492aab6accf87059b72354fcb4ba934304771d
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
 
-PODFILE CHECKSUM: b0b272159268c64df66b1b276887e0e0629a3acb
+PODFILE CHECKSUM: bc2677f17ee34661513e96d261b044306e936165
 
 COCOAPODS: 1.15.2
