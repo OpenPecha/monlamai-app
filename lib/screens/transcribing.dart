@@ -11,11 +11,35 @@ class TranscribingScreen extends StatefulWidget {
 
 class _TranscribingScreenState extends State<TranscribingScreen> {
   bool _isRecording = false;
+  bool _isLoading = false;
+  String _transcribedText = '';
+  String _translatedText = '';
 
   void toggleRecording() {
     // Handle recording toggle
     setState(() {
       _isRecording = !_isRecording;
+    });
+  }
+
+  void toggleLoading(bool loading) {
+    // Handle loading state
+    setState(() {
+      _isLoading = loading;
+    });
+  }
+
+  void setTranscribedText(String text) {
+    // Handle transcribed text
+    setState(() {
+      _transcribedText = text;
+    });
+  }
+
+  void setTranslatedText(String text) {
+    // Handle translated text
+    setState(() {
+      _translatedText = text;
     });
   }
 
@@ -49,7 +73,7 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _isRecording
+              _isRecording && !_isLoading
                   ? const Text(
                       'Listening ....',
                       style: TextStyle(
@@ -64,6 +88,32 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
                         color: Colors.grey,
                       ),
                     ),
+              !_isRecording && _isLoading
+                  ? const Text(
+                      'Loading ...',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.grey,
+                      ),
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Transcribed Text: $_transcribedText',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          "Translated Text: $_translatedText",
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
             ],
           ),
         ),
@@ -75,6 +125,9 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
           AudioRecordingWidget(
             isRecording: _isRecording,
             toggleRecording: toggleRecording,
+            toggleLoading: toggleLoading,
+            setTranscribedText: setTranscribedText,
+            setTranslatedText: setTranslatedText,
           ),
         ]),
       ),

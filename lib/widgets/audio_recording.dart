@@ -2,18 +2,29 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
+import 'package:monlamai_app/services/file_upload.dart';
+import 'package:monlamai_app/services/stt_service.dart';
+import 'package:monlamai_app/services/translation_service.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 import 'package:audio_session/audio_session.dart';
 
 class AudioRecordingWidget extends StatefulWidget {
-  const AudioRecordingWidget(
-      {Key? key, required this.isRecording, required this.toggleRecording})
-      : super(key: key);
+  const AudioRecordingWidget({
+    Key? key,
+    required this.isRecording,
+    required this.toggleRecording,
+    required this.toggleLoading,
+    required this.setTranscribedText,
+    required this.setTranslatedText,
+  }) : super(key: key);
 
   final bool isRecording;
   final Function toggleRecording;
+  final Function toggleLoading;
+  final Function setTranscribedText;
+  final Function setTranslatedText;
 
   @override
   State<AudioRecordingWidget> createState() => _AudioRecordingWidgetState();
@@ -23,6 +34,9 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
   FlutterSoundRecorder? _recorder = FlutterSoundRecorder();
   String _audioPath = '';
   bool _recorderIsInited = false;
+  final FileUpload _fileUpload = FileUpload();
+  final SttService _sttService = SttService();
+  final TranslationService _translationService = TranslationService();
 
   @override
   void initState() {
@@ -144,8 +158,50 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
       return;
     }
 
+    widget.toggleLoading(true);
+
     try {
       // send the audio file to the server
+      Map<String, dynamic> uploadResult = await _fileUpload.uploadFile(
+        filePath: _audioPath,
+      );
+
+      if (uploadResult['success'] == true) {
+        log("Audio file uploaded successfully: ${uploadResult['file_url']}");
+        String audioUrl = uploadResult['file_url'];
+
+        // send the audio file URL to the STT service
+        Map<String, dynamic> sttResult = await _sttService.fetchTextFromAudio(
+          audioUrl: audioUrl,
+          language: "en",
+        );
+
+        if (sttResult['success'] == true) {
+          log("Transcribed text: ${sttResult['output']}");
+          String transcribedText = sttResult['output'];
+          widget.setTranscribedText(transcribedText);
+
+          Map<String, dynamic> translationResult =
+              await _translationService.translateText(
+            transcribedText,
+            "bo",
+          );
+
+          if (translationResult['success'] == true) {
+            log("Translated text: ${translationResult['translatedText']}");
+            String translatedText = translationResult['translatedText'];
+
+            widget.toggleLoading(false);
+            widget.setTranslatedText(translatedText);
+          } else {
+            log("Error translating text: ${translationResult['error']}");
+          }
+        } else {
+          log("Error transcribing audio: ${sttResult['error']}");
+        }
+      } else {
+        log("Error uploading audio file: ${uploadResult['error']}");
+      }
 
       // For example:
       log("Audio file ready for upload: $_audioPath");

@@ -3,7 +3,6 @@ import 'package:monlamai_app/screens/conversation.dart';
 import 'package:monlamai_app/screens/favorites.dart';
 import 'package:monlamai_app/screens/ocr_screen.dart';
 import 'package:monlamai_app/screens/settings.dart';
-import 'package:monlamai_app/screens/simple_recorder.dart';
 import 'package:monlamai_app/screens/transcribing.dart';
 import 'package:monlamai_app/screens/translation.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
