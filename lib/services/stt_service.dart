@@ -35,9 +35,11 @@ class SttService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         log("response: $data");
+        final decodedTranscription = utf8.decode(data["output"].codeUnits);
+
         return {
           "success": true,
-          "output": data["output"],
+          "output": decodedTranscription,
         };
       } else {
         // Handle HTTP error

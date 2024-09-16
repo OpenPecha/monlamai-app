@@ -1,16 +1,18 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:monlamai_app/services/file_upload.dart';
 import 'package:monlamai_app/services/stt_service.dart';
 import 'package:monlamai_app/services/translation_service.dart';
+import 'package:monlamai_app/widgets/language_toggle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
 import 'package:audio_session/audio_session.dart';
 
-class AudioRecordingWidget extends StatefulWidget {
+class AudioRecordingWidget extends ConsumerStatefulWidget {
   const AudioRecordingWidget({
     Key? key,
     required this.isRecording,
@@ -18,6 +20,7 @@ class AudioRecordingWidget extends StatefulWidget {
     required this.toggleLoading,
     required this.setTranscribedText,
     required this.setTranslatedText,
+    required this.resetText,
   }) : super(key: key);
 
   final bool isRecording;
@@ -25,12 +28,14 @@ class AudioRecordingWidget extends StatefulWidget {
   final Function toggleLoading;
   final Function setTranscribedText;
   final Function setTranslatedText;
+  final Function resetText;
 
   @override
-  State<AudioRecordingWidget> createState() => _AudioRecordingWidgetState();
+  ConsumerState<AudioRecordingWidget> createState() =>
+      _AudioRecordingWidgetState();
 }
 
-class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
+class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
   FlutterSoundRecorder? _recorder = FlutterSoundRecorder();
   String _audioPath = '';
   bool _recorderIsInited = false;
@@ -118,6 +123,7 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
         toFile: _audioPath,
         codec: Codec.pcm16WAV,
       );
+      widget.resetText();
       widget.toggleRecording();
     } catch (e) {
       log('Error starting recording: $e');
@@ -169,11 +175,14 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
       if (uploadResult['success'] == true) {
         log("Audio file uploaded successfully: ${uploadResult['file_url']}");
         String audioUrl = uploadResult['file_url'];
+        _recorder!.deleteRecord(fileName: _audioPath);
+        final targetLang = ref.watch(targetLanguageProvider);
+        final sourceLang = ref.watch(sourceLanguageProvider);
 
         // send the audio file URL to the STT service
         Map<String, dynamic> sttResult = await _sttService.fetchTextFromAudio(
           audioUrl: audioUrl,
-          language: "en",
+          language: sourceLang,
         );
 
         if (sttResult['success'] == true) {
@@ -184,15 +193,15 @@ class _AudioRecordingWidgetState extends State<AudioRecordingWidget> {
           Map<String, dynamic> translationResult =
               await _translationService.translateText(
             transcribedText,
-            "bo",
+            targetLang,
           );
 
           if (translationResult['success'] == true) {
             log("Translated text: ${translationResult['translatedText']}");
             String translatedText = translationResult['translatedText'];
 
-            widget.toggleLoading(false);
             widget.setTranslatedText(translatedText);
+            widget.toggleLoading(false);
           } else {
             log("Error translating text: ${translationResult['error']}");
           }

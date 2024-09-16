@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/widgets/audio_recording.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
+import 'package:monlamai_app/widgets/speaker.dart';
 
-class TranscribingScreen extends StatefulWidget {
+class TranscribingScreen extends ConsumerStatefulWidget {
   const TranscribingScreen({super.key});
 
   @override
-  State<TranscribingScreen> createState() => _TranscribingScreenState();
+  ConsumerState<TranscribingScreen> createState() => _TranscribingScreenState();
 }
 
-class _TranscribingScreenState extends State<TranscribingScreen> {
+class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
   bool _isRecording = false;
   bool _isLoading = false;
   String _transcribedText = '';
@@ -43,8 +46,18 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
     });
   }
 
+  // reset both text
+  void resetText() {
+    setState(() {
+      _transcribedText = '';
+      _translatedText = '';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final sourceLang = ref.watch(sourceLanguageProvider);
+    final targetLang = ref.watch(targetLanguageProvider);
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -73,7 +86,7 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _isRecording && !_isLoading
+              _isRecording && !_isLoading & _transcribedText.isEmpty
                   ? const Text(
                       'Listening ....',
                       style: TextStyle(
@@ -81,14 +94,17 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
                         color: Colors.grey,
                       ),
                     )
-                  : const Text(
+                  : Container(),
+              !_isRecording && !_isLoading & _transcribedText.isEmpty
+                  ? const Text(
                       'Tap the mic button to start',
                       style: TextStyle(
                         fontSize: 22,
                         color: Colors.grey,
                       ),
-                    ),
-              !_isRecording && _isLoading
+                    )
+                  : Container(),
+              !_isRecording && _isLoading && _transcribedText.isEmpty
                   ? const Text(
                       'Loading ...',
                       style: TextStyle(
@@ -96,24 +112,107 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
                         color: Colors.grey,
                       ),
                     )
-                  : Column(
+                  : Container(),
+              _transcribedText.isNotEmpty &&
+                      _translatedText.isNotEmpty &&
+                      !_isLoading &&
+                      !_isRecording
+                  ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Transcribed Text: $_transcribedText',
+                          _transcribedText,
                           style: const TextStyle(
-                            fontSize: 18,
-                            color: Colors.grey,
+                            fontSize: 20,
+                            fontWeight: FontWeight.normal,
                           ),
                         ),
-                        Text(
-                          "Translated Text: $_translatedText",
-                          style: const TextStyle(
-                            fontSize: 18,
-                          ),
+                        Row(
+                          children: [
+                            SpeakerWidget(
+                              text: _transcribedText,
+                              language: sourceLang,
+                            ),
+                            const Spacer(),
+                            IconButton(
+                              onPressed: () {
+                                Clipboard.setData(
+                                  ClipboardData(text: _transcribedText),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Text copied')),
+                                );
+                              },
+                              icon: const Icon(Icons.copy_outlined),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 16.0),
+                        const Divider(
+                          thickness: 1,
+                          height: 1,
+                          color: Color(0xFF0C53C5),
+                          indent: 20,
+                          endIndent: 20,
+                        ),
+                        const SizedBox(height: 16.0),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 0,
+                                horizontal: 10,
+                              ),
+                              child: Text(
+                                _translatedText,
+                                softWrap: true,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            Row(
+                              children: [
+                                SpeakerWidget(
+                                  text: _translatedText,
+                                  language: targetLang,
+                                ),
+                                const Spacer(),
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () {
+                                    Clipboard.setData(
+                                      ClipboardData(text: _translatedText),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text('Text copied')),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.copy_outlined),
+                                ),
+                                IconButton(
+                                  padding: EdgeInsets.zero,
+                                  onPressed: () {
+                                    // send feedback to the server
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content:
+                                              Text('Thanks for the feedback')),
+                                    );
+                                  },
+                                  icon: const Icon(Icons.thumb_up),
+                                ),
+                              ],
+                            ),
+                          ],
+                        )
                       ],
-                    ),
+                    )
+                  : Container(),
             ],
           ),
         ),
@@ -122,12 +221,14 @@ class _TranscribingScreenState extends State<TranscribingScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const LanguageToggle(),
+          const SizedBox(height: 16.0),
           AudioRecordingWidget(
             isRecording: _isRecording,
             toggleRecording: toggleRecording,
             toggleLoading: toggleLoading,
             setTranscribedText: setTranscribedText,
             setTranslatedText: setTranslatedText,
+            resetText: resetText,
           ),
         ]),
       ),
