@@ -32,17 +32,12 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
     });
   }
 
-  void setTranscribedText(String text) {
+  void setTexts(String transcribedText, String translated, String sourceLang,
+      String targetLang) {
     // Handle transcribed text
     setState(() {
-      _transcribedText = text;
-    });
-  }
-
-  void setTranslatedText(String text) {
-    // Handle translated text
-    setState(() {
-      _translatedText = text;
+      _transcribedText = transcribedText;
+      _translatedText = translated;
     });
   }
 
@@ -77,143 +72,148 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 16,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _isRecording && !_isLoading & _transcribedText.isEmpty
-                  ? const Text(
-                      'Listening ....',
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.grey,
-                      ),
-                    )
-                  : Container(),
-              !_isRecording && !_isLoading & _transcribedText.isEmpty
-                  ? const Text(
-                      'Tap the mic button to start',
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.grey,
-                      ),
-                    )
-                  : Container(),
-              !_isRecording && _isLoading && _transcribedText.isEmpty
-                  ? const Text(
-                      'Loading ...',
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.grey,
-                      ),
-                    )
-                  : Container(),
-              _transcribedText.isNotEmpty &&
-                      _translatedText.isNotEmpty &&
-                      !_isLoading &&
-                      !_isRecording
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _transcribedText,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.normal,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 16,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _isRecording && !_isLoading & _transcribedText.isEmpty
+                    ? const Text(
+                        'Listening ....',
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.grey,
+                        ),
+                      )
+                    : Container(),
+                !_isRecording && !_isLoading & _transcribedText.isEmpty
+                    ? const Text(
+                        'Tap the mic button to start',
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.grey,
+                        ),
+                      )
+                    : Container(),
+                !_isRecording && _isLoading && _transcribedText.isEmpty
+                    ? const Text(
+                        'Loading ...',
+                        style: TextStyle(
+                          fontSize: 22,
+                          color: Colors.grey,
+                        ),
+                      )
+                    : Container(),
+                _transcribedText.isNotEmpty &&
+                        _translatedText.isNotEmpty &&
+                        !_isLoading &&
+                        !_isRecording
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _transcribedText,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.normal,
+                            ),
                           ),
-                        ),
-                        Row(
-                          children: [
-                            SpeakerWidget(
-                              text: _transcribedText,
-                              language: sourceLang,
-                            ),
-                            const Spacer(),
-                            IconButton(
-                              onPressed: () {
-                                Clipboard.setData(
-                                  ClipboardData(text: _transcribedText),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Text copied')),
-                                );
-                              },
-                              icon: const Icon(Icons.copy_outlined),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16.0),
-                        const Divider(
-                          thickness: 1,
-                          height: 1,
-                          color: Color(0xFF0C53C5),
-                          indent: 20,
-                          endIndent: 20,
-                        ),
-                        const SizedBox(height: 16.0),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 0,
-                                horizontal: 10,
+                          Row(
+                            children: [
+                              SpeakerWidget(
+                                text: _transcribedText,
+                                language: sourceLang,
                               ),
-                              child: Text(
-                                _translatedText,
-                                softWrap: true,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.normal,
+                              const Spacer(),
+                              IconButton(
+                                onPressed: () {
+                                  Clipboard.setData(
+                                    ClipboardData(text: _transcribedText),
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text('Text copied')),
+                                  );
+                                },
+                                icon: const Icon(Icons.copy_outlined),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16.0),
+                          const Divider(
+                            thickness: 1,
+                            height: 1,
+                            color: Color(0xFF0C53C5),
+                            indent: 20,
+                            endIndent: 20,
+                          ),
+                          const SizedBox(height: 16.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 0,
+                                  horizontal: 10,
+                                ),
+                                child: Text(
+                                  _translatedText,
+                                  softWrap: true,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.normal,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 8.0),
-                            Row(
-                              children: [
-                                SpeakerWidget(
-                                  text: _translatedText,
-                                  language: targetLang,
-                                ),
-                                const Spacer(),
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  onPressed: () {
-                                    Clipboard.setData(
-                                      ClipboardData(text: _translatedText),
-                                    );
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text('Text copied')),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.copy_outlined),
-                                ),
-                                IconButton(
-                                  padding: EdgeInsets.zero,
-                                  onPressed: () {
-                                    // send feedback to the server
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content:
-                                              Text('Thanks for the feedback')),
-                                    );
-                                  },
-                                  icon: const Icon(Icons.thumb_up),
-                                ),
-                              ],
-                            ),
-                          ],
-                        )
-                      ],
-                    )
-                  : Container(),
-            ],
+                              const SizedBox(height: 8.0),
+                              Row(
+                                children: [
+                                  SpeakerWidget(
+                                    text: _translatedText,
+                                    language: targetLang,
+                                  ),
+                                  const Spacer(),
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      Clipboard.setData(
+                                        ClipboardData(text: _translatedText),
+                                      );
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text('Text copied')),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.copy_outlined),
+                                  ),
+                                  IconButton(
+                                    padding: EdgeInsets.zero,
+                                    onPressed: () {
+                                      // send feedback to the server
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                            content: Text(
+                                                'Thanks for the feedback')),
+                                      );
+                                    },
+                                    icon: const Icon(Icons.thumb_up),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          )
+                        ],
+                      )
+                    : Container(),
+              ],
+            ),
           ),
         ),
       ),
@@ -226,9 +226,10 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
             isRecording: _isRecording,
             toggleRecording: toggleRecording,
             toggleLoading: toggleLoading,
-            setTranscribedText: setTranscribedText,
-            setTranslatedText: setTranslatedText,
+            setTexts: setTexts,
             resetText: resetText,
+            langFrom: sourceLang,
+            langTo: targetLang,
           ),
         ]),
       ),

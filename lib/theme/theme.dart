@@ -15,7 +15,7 @@ const darkSecondContainerColor = Color(0xFF282828);
 ThemeData lightMode = ThemeData(
   brightness: Brightness.light,
   colorScheme: const ColorScheme.light(
-      background: lightBgColor,
+      surface: lightBgColor,
       primary: lightBtnBgColor,
       secondary: lightBtnTextColor),
   appBarTheme: const AppBarTheme(
@@ -53,7 +53,7 @@ ThemeData lightMode = ThemeData(
 ThemeData darkMode = ThemeData(
   brightness: Brightness.dark,
   colorScheme: const ColorScheme.dark(
-      background: darkBgColor,
+      surface: darkBgColor,
       primary: darkBtnBgColor,
       secondary: darkBtnTextColor),
   appBarTheme: const AppBarTheme(

@@ -49,9 +49,9 @@ class FavoritesScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       Text(
                         'ENGLISH → TIBETAN',
                         style: TextStyle(
@@ -73,13 +73,13 @@ class FavoritesScreen extends StatelessWidget {
                         icon: const Icon(Icons.volume_up, color: Colors.grey),
                         onPressed: () {/* Handle audio playback */},
                       ),
-                      Spacer(),
+                      const Spacer(),
                       IconButton(
-                        icon: Icon(Icons.copy, color: Colors.grey),
+                        icon: const Icon(Icons.copy, color: Colors.grey),
                         onPressed: () {/* Handle copy */},
                       ),
                       IconButton(
-                        icon: Icon(Icons.thumb_up, color: Colors.grey),
+                        icon: const Icon(Icons.thumb_up, color: Colors.grey),
                         onPressed: () {/* Handle like */},
                       ),
                     ],
@@ -92,16 +92,16 @@ class FavoritesScreen extends StatelessWidget {
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.volume_up, color: Colors.grey),
+                        icon: const Icon(Icons.volume_up, color: Colors.grey),
                         onPressed: () {/* Handle audio playback */},
                       ),
                       const Spacer(),
                       IconButton(
-                        icon: Icon(Icons.copy, color: Colors.grey),
+                        icon: const Icon(Icons.copy, color: Colors.grey),
                         onPressed: () {/* Handle copy */},
                       ),
                       IconButton(
-                        icon: Icon(Icons.thumb_up, color: Colors.grey),
+                        icon: const Icon(Icons.thumb_up, color: Colors.grey),
                         onPressed: () {/* Handle like */},
                       ),
                     ],

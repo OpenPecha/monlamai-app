@@ -6,7 +6,6 @@ import 'package:flutter_sound/flutter_sound.dart';
 import 'package:monlamai_app/services/file_upload.dart';
 import 'package:monlamai_app/services/stt_service.dart';
 import 'package:monlamai_app/services/translation_service.dart';
-import 'package:monlamai_app/widgets/language_toggle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:uuid/uuid.dart';
@@ -18,17 +17,19 @@ class AudioRecordingWidget extends ConsumerStatefulWidget {
     required this.isRecording,
     required this.toggleRecording,
     required this.toggleLoading,
-    required this.setTranscribedText,
-    required this.setTranslatedText,
+    required this.setTexts,
     required this.resetText,
+    required this.langFrom,
+    required this.langTo,
   }) : super(key: key);
 
   final bool isRecording;
   final Function toggleRecording;
   final Function toggleLoading;
-  final Function setTranscribedText;
-  final Function setTranslatedText;
+  final Function setTexts;
   final Function resetText;
+  final String langFrom;
+  final String langTo;
 
   @override
   ConsumerState<AudioRecordingWidget> createState() =>
@@ -176,31 +177,29 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
         log("Audio file uploaded successfully: ${uploadResult['file_url']}");
         String audioUrl = uploadResult['file_url'];
         _recorder!.deleteRecord(fileName: _audioPath);
-        final targetLang = ref.watch(targetLanguageProvider);
-        final sourceLang = ref.watch(sourceLanguageProvider);
 
         // send the audio file URL to the STT service
         Map<String, dynamic> sttResult = await _sttService.fetchTextFromAudio(
           audioUrl: audioUrl,
-          language: sourceLang,
+          language: widget.langFrom,
         );
 
         if (sttResult['success'] == true) {
           log("Transcribed text: ${sttResult['output']}");
           String transcribedText = sttResult['output'];
-          widget.setTranscribedText(transcribedText);
 
           Map<String, dynamic> translationResult =
               await _translationService.translateText(
             transcribedText,
-            targetLang,
+            widget.langTo,
           );
 
           if (translationResult['success'] == true) {
             log("Translated text: ${translationResult['translatedText']}");
             String translatedText = translationResult['translatedText'];
 
-            widget.setTranslatedText(translatedText);
+            widget.setTexts(transcribedText, translatedText, widget.langFrom,
+                widget.langTo);
             widget.toggleLoading(false);
           } else {
             log("Error translating text: ${translationResult['error']}");
@@ -216,6 +215,8 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
       log("Audio file ready for upload: $_audioPath");
     } catch (e) {
       log("Error preparing file for upload: $e");
+    } finally {
+      widget.toggleLoading(false);
     }
   }
 
@@ -224,20 +225,26 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(bottom: 16.0),
-          child: Center(
-            child: FloatingActionButton(
-              onPressed: () {
-                toggleRecording();
-              },
-              child: Icon(
-                widget.isRecording ? Icons.stop : Icons.mic,
-                size: 35,
-              ),
+        Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(4),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+          ),
+          child: IconButton(
+            icon: Icon(
+              widget.isRecording ? Icons.square_rounded : Icons.mic,
+              size: 42,
             ),
+            color: const Color(0xFF202020),
+            onPressed: () {
+              toggleRecording();
+            },
+            tooltip: "Tap to speak",
           ),
         ),
+        const SizedBox(height: 16),
       ],
     );
   }

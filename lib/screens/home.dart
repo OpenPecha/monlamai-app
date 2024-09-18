@@ -63,56 +63,58 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+          ),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            GestureDetector(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const TransaltionScreen(),
+                ),
+              ),
+              child: const Text(
+                "Enter text",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ),
+            const Spacer(),
+            const LanguageToggle(),
+            const SizedBox(height: 16.0),
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                CircularIconButton(
+                  icon: Icons.chat_bubble,
+                  padding: 4,
+                  size: 24,
+                  tooltip: "Chat",
+                  route: ConversationScreen(),
+                ),
+                CircularIconButton(
+                  icon: Icons.mic,
+                  padding: 12,
+                  size: 34,
+                  tooltip: "Voice Input",
+                  route: TranscribingScreen(),
+                ),
+                CircularIconButton(
+                  icon: Icons.camera_alt,
+                  padding: 4,
+                  size: 24,
+                  tooltip: "Camera",
+                  route: OcrScreen(),
+                ),
+              ],
+            ),
+          ]),
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          GestureDetector(
-            onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const TransaltionScreen(),
-              ),
-            ),
-            child: const Text(
-              "Enter text",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ),
-          const Spacer(),
-          const LanguageToggle(),
-          const SizedBox(height: 16.0),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              CircularIconButton(
-                icon: Icons.chat_bubble,
-                padding: 4,
-                size: 24,
-                tooltip: "Chat",
-                route: ConversationScreen(),
-              ),
-              CircularIconButton(
-                icon: Icons.mic,
-                padding: 12,
-                size: 34,
-                tooltip: "Voice Input",
-                route: TranscribingScreen(),
-              ),
-              CircularIconButton(
-                icon: Icons.camera_alt,
-                padding: 4,
-                size: 24,
-                tooltip: "Camera",
-                route: OcrScreen(),
-              ),
-            ],
-          ),
-        ]),
       ),
     );
   }
