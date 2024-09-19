@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
+import 'package:monlamai_app/widgets/speaker.dart';
 
 class SplitScreenConversation extends ConsumerWidget {
   const SplitScreenConversation({
@@ -32,9 +33,10 @@ class SplitScreenConversation extends ConsumerWidget {
                       child: Transform.rotate(
                         angle: 3.14,
                         child: _ConversationSide(
+                          type: 'target',
                           language: targetLang,
                           instruction: 'Tap on the Mic to Start',
-                          isReversed: true,
+                          conversationList: conversationList,
                         ),
                       ),
                     ),
@@ -42,8 +44,10 @@ class SplitScreenConversation extends ConsumerWidget {
                     Container(width: 2, color: Colors.pink[300]),
                     Expanded(
                       child: _ConversationSide(
+                        type: 'source',
                         language: sourceLang,
                         instruction: 'Tap on the Mic to Start',
+                        conversationList: conversationList,
                       ),
                     ),
                   ],
@@ -58,16 +62,31 @@ class SplitScreenConversation extends ConsumerWidget {
 }
 
 class _ConversationSide extends ConsumerWidget {
+  final String type;
   final String language;
   final String instruction;
-  final bool isReversed;
+  final List<Map<String, String>> conversationList;
+  final List<String> filteredList;
 
-  const _ConversationSide({
+  _ConversationSide({
+    required this.type,
     required this.language,
     required this.instruction,
-    this.isReversed = false,
+    required this.conversationList,
     Key? key,
-  }) : super(key: key);
+  })  : filteredList = conversationList
+            .map((conversation) {
+              if (conversation['soucreLang'] == language) {
+                return conversation['sourceText']!;
+              } else if (conversation['targetLang'] == language) {
+                return conversation['targetText']!;
+              }
+              return null;
+            })
+            .where((text) => text != null)
+            .cast<String>()
+            .toList(),
+        super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -82,17 +101,38 @@ class _ConversationSide extends ConsumerWidget {
     return Column(
       children: [
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  instruction,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-              ],
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 50),
+            child: ListView.separated(
+              scrollDirection: Axis.vertical,
+              itemCount: filteredList.length,
+              itemBuilder: (context, index) {
+                final text = filteredList[index];
+                final lang = language;
+                return Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(
+                        text,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SpeakerWidget(text: text, language: lang),
+                    ],
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) => const SizedBox(height: 16),
             ),
           ),
         ),

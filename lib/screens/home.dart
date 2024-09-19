@@ -63,57 +63,60 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            GestureDetector(
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const TransaltionScreen(),
-                ),
-              ),
-              child: const Text(
-                "Enter text",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.normal,
-                ),
-              ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+        child: GestureDetector(
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const TransaltionScreen(),
             ),
-            const Spacer(),
-            const LanguageToggle(),
-            const SizedBox(height: 16.0),
-            const Row(
+          ),
+          child: const Text(
+            "Enter text",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+        ),
+      ),
+      bottomSheet: const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            LanguageToggle(),
+            SizedBox(height: 16.0),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 CircularIconButton(
                   icon: Icons.chat_bubble,
                   padding: 4,
-                  size: 24,
+                  size: 28,
                   tooltip: "Chat",
                   route: ConversationScreen(),
                 ),
                 CircularIconButton(
                   icon: Icons.mic,
-                  padding: 12,
-                  size: 34,
+                  padding: 4,
+                  size: 48,
                   tooltip: "Voice Input",
                   route: TranscribingScreen(),
                 ),
                 CircularIconButton(
                   icon: Icons.camera_alt,
                   padding: 4,
-                  size: 24,
+                  size: 28,
                   tooltip: "Camera",
                   route: OcrScreen(),
                 ),
               ],
             ),
-          ]),
+          ],
         ),
       ),
     );
@@ -166,10 +169,8 @@ class CircularIconButton extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       padding: EdgeInsets.all(padding),
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: Color(0xFFE0E0E0),
-      ),
+      decoration:
+          const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
       child: IconButton(
         icon: Icon(
           icon,

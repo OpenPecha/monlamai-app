@@ -28,13 +28,13 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
   bool _isTargetRecording = false;
   bool _isLoading = false;
   // list of conversation messages
-  List<Map<String, String>> _conversation = [];
+  List<Map<String, String>> _conversations = [];
   final ScrollController _scrollController = ScrollController();
 
   @override
   void dispose() {
     _scrollController.dispose();
-    _conversation.clear();
+    _conversations.clear();
     super.dispose();
   }
 
@@ -49,7 +49,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
       String targetLang) {
     // Handle transcribed text
     setState(() {
-      _conversation.add({
+      _conversations.add({
         "sourceText": sourceText,
         "soucreLang": sourceLang,
         "targetText": targetText,
@@ -112,7 +112,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                     builder: (context) => SplitScreenConversation(
-                          conversationList: _conversation,
+                          conversationList: _conversations,
                         )),
               );
             },
@@ -136,7 +136,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                     ),
                   )
                 : Container(),
-            _conversation.isEmpty &&
+            _conversations.isEmpty &&
                     !_isSourceRecording &&
                     !_isTargetRecording &&
                     !_isLoading
@@ -158,7 +158,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                   )
                 : Container(),
             const SizedBox(height: 16),
-            _conversation.isNotEmpty ? _sourceOutput() : Container(),
+            _conversations.isNotEmpty ? _sourceOutput() : Container(),
           ],
         ),
       ),
@@ -203,13 +203,13 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
         child: ListView.separated(
           controller: _scrollController,
           scrollDirection: Axis.vertical,
-          itemCount: _conversation.length,
+          itemCount: _conversations.length,
           itemBuilder: (context, index) {
             return convoCard(
-              _conversation[index]['sourceText']!,
-              _conversation[index]['targetText']!,
-              _conversation[index]['soucreLang']!,
-              _conversation[index]['targetLang']!,
+              _conversations[index]['sourceText']!,
+              _conversations[index]['targetText']!,
+              _conversations[index]['soucreLang']!,
+              _conversations[index]['targetLang']!,
             );
           },
           separatorBuilder: (context, index) => const SizedBox(height: 16),

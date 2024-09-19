@@ -244,7 +244,6 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
             tooltip: "Tap to speak",
           ),
         ),
-        const SizedBox(height: 16),
       ],
     );
   }
