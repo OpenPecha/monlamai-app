@@ -2,22 +2,84 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:monlamai_app/widgets/audio_recording.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
 import 'package:monlamai_app/widgets/speaker.dart';
 
-class SplitScreenConversation extends ConsumerWidget {
-  const SplitScreenConversation({
-    Key? key,
-    required this.conversationList,
-  }) : super(key: key);
-
+class SplitScreen extends ConsumerStatefulWidget {
+  const SplitScreen(
+      {Key? key, required this.conversationList, required this.setTexts})
+      : super(key: key);
   final List<Map<String, String>> conversationList;
+  final Function setTexts;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplitScreen> createState() => _SplitScreenState();
+}
+
+class _SplitScreenState extends ConsumerState<SplitScreen> {
+  bool _isSourceRecording = false;
+  bool _isTargetRecording = false;
+  bool _isLoading = false;
+
+  void toggleLoading(bool loading) {
+    // Handle loading state
+    setState(() {
+      _isLoading = loading;
+    });
+  }
+
+  // void setTexts(String sourceText, String targetText, String sourceLang,
+  //     String targetLang) {
+  //   // Handle transcribed text
+  //   setState(() {
+  //     widget.conversationList.add({
+  //       "sourceText": sourceText,
+  //       "soucreLang": sourceLang,
+  //       "targetText": targetText,
+  //       "targetLang": targetLang,
+  //     });
+  //   });
+  // }
+
+  // reset both text
+  void resetText() {
+    setState(() {});
+  }
+
+  void toggleSourceRecording() {
+    setState(() {
+      if (_isTargetRecording) {
+        // If target is recording, stop it and start source
+        _isTargetRecording = false;
+        _isSourceRecording = true;
+      } else {
+        // Otherwise, just toggle source
+        _isSourceRecording = !_isSourceRecording;
+      }
+    });
+  }
+
+  void toggleTargetRecording() {
+    setState(() {
+      if (_isSourceRecording) {
+        // If source is recording, stop it and start target
+        _isSourceRecording = false;
+        _isTargetRecording = true;
+      } else {
+        // Otherwise, just toggle target
+        _isTargetRecording = !_isTargetRecording;
+      }
+    });
+  }
+
+  @override
+  Widget build(
+    BuildContext context,
+  ) {
     final sourceLang = ref.watch(sourceLanguageProvider);
     final targetLang = ref.watch(targetLanguageProvider);
-    log("list of conversation messages: $conversationList");
+    log("list of conversation messages: ${widget.conversationList}");
 
     return Scaffold(
       body: SafeArea(
@@ -36,7 +98,12 @@ class SplitScreenConversation extends ConsumerWidget {
                           type: 'target',
                           language: targetLang,
                           instruction: 'Tap on the Mic to Start',
-                          conversationList: conversationList,
+                          conversationList: widget.conversationList,
+                          isRecording: _isTargetRecording,
+                          toggleRecording: toggleTargetRecording,
+                          toggleLoading: toggleLoading,
+                          setTexts: widget.setTexts,
+                          resetText: resetText,
                         ),
                       ),
                     ),
@@ -47,7 +114,12 @@ class SplitScreenConversation extends ConsumerWidget {
                         type: 'source',
                         language: sourceLang,
                         instruction: 'Tap on the Mic to Start',
-                        conversationList: conversationList,
+                        conversationList: widget.conversationList,
+                        isRecording: _isSourceRecording,
+                        toggleRecording: toggleSourceRecording,
+                        toggleLoading: toggleLoading,
+                        setTexts: widget.setTexts,
+                        resetText: resetText,
                       ),
                     ),
                   ],
@@ -67,12 +139,22 @@ class _ConversationSide extends ConsumerWidget {
   final String instruction;
   final List<Map<String, String>> conversationList;
   final List<String> filteredList;
+  final bool isRecording;
+  final Function toggleRecording;
+  final Function toggleLoading;
+  final Function setTexts;
+  final Function resetText;
 
   _ConversationSide({
     required this.type,
     required this.language,
     required this.instruction,
     required this.conversationList,
+    required this.isRecording,
+    required this.toggleRecording,
+    required this.toggleLoading,
+    required this.setTexts,
+    required this.resetText,
     Key? key,
   })  : filteredList = conversationList
             .map((conversation) {
@@ -98,6 +180,8 @@ class _ConversationSide extends ConsumerWidget {
       ref.read(targetLanguageProvider.notifier).state = sourceLang;
     }
 
+    String langTo = language == "en" ? "bo" : "en";
+
     return Column(
       children: [
         Expanded(
@@ -119,6 +203,7 @@ class _ConversationSide extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         text,
@@ -139,26 +224,19 @@ class _ConversationSide extends ConsumerWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.all(4),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-              ),
-              child: IconButton(
-                icon: const Icon(
-                  Icons.mic,
-                  size: 42,
-                ),
-                color: const Color(0xFF202020),
-                onPressed: () {},
-                tooltip: "Tap to type",
-              ),
+            AudioRecordingWidget(
+              isRecording: isRecording,
+              toggleRecording: toggleRecording,
+              toggleLoading: toggleLoading,
+              setTexts: setTexts,
+              resetText: resetText,
+              langFrom: language,
+              langTo: langTo,
             ),
             const Spacer(),
             Expanded(
               child: ButtonWrapper(
+                type: type,
                 value: languageSupported
                     .firstWhere(
                       (lang) => lang.code == language,

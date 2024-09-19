@@ -104,7 +104,11 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const CircularProgressIndicator();
+      return const SizedBox(
+        height: 24,
+        width: 24,
+        child: CircularProgressIndicator(),
+      );
     } else if (_errorMessage != null) {
       return IconButton(
         icon: const Icon(Icons.error),

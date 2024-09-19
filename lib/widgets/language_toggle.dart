@@ -67,8 +67,10 @@ class LanguageToggle extends ConsumerWidget {
 class ButtonWrapper extends StatefulWidget {
   final String value;
   final ValueChanged<String> onChanged;
+  final String? type;
 
-  const ButtonWrapper({Key? key, required this.value, required this.onChanged})
+  const ButtonWrapper(
+      {Key? key, required this.value, required this.onChanged, this.type})
       : super(key: key);
 
   @override
@@ -82,6 +84,9 @@ class _ButtonWrapperState extends State<ButtonWrapper> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        double dy = widget.type == "source" || widget.type == "target"
+            ? 0
+            : -constraints.maxHeight * languageSupported.length.toDouble() - 65;
         return MenuAnchor(
           style: MenuStyle(
             backgroundColor: WidgetStateProperty.all(Colors.grey[800]!),
@@ -92,12 +97,15 @@ class _ButtonWrapperState extends State<ButtonWrapper> {
             ),
           ),
           alignmentOffset: Offset(
-              0,
-              -constraints.maxHeight * languageSupported.length.toDouble() -
-                  65),
+            0,
+            dy,
+          ),
           controller: _menuController,
           menuChildren: languageSupported
-              .map((lang) => SizedBox(
+              .map(
+                (lang) => Transform.rotate(
+                  angle: widget.type == "target" ? 3.14 : 0,
+                  child: SizedBox(
                     width: constraints.maxWidth,
                     child: MenuItemButton(
                       style: ButtonStyle(
@@ -117,7 +125,9 @@ class _ButtonWrapperState extends State<ButtonWrapper> {
                         child: Text(lang.name),
                       ),
                     ),
-                  ))
+                  ),
+                ),
+              )
               .toList(),
           builder:
               (BuildContext context, MenuController controller, Widget? child) {

@@ -28,7 +28,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
   bool _isTargetRecording = false;
   bool _isLoading = false;
   // list of conversation messages
-  List<Map<String, String>> _conversations = [];
+  final List<Map<String, String>> _conversations = [];
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -45,8 +45,12 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
     });
   }
 
-  void setTexts(String sourceText, String targetText, String sourceLang,
-      String targetLang) {
+  void setTexts(
+    String sourceText,
+    String targetText,
+    String sourceLang,
+    String targetLang,
+  ) {
     // Handle transcribed text
     setState(() {
       _conversations.add({
@@ -111,8 +115,9 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
               // Handle star button press
               Navigator.of(context).push(
                 MaterialPageRoute(
-                    builder: (context) => SplitScreenConversation(
+                    builder: (context) => SplitScreen(
                           conversationList: _conversations,
+                          setTexts: setTexts,
                         )),
               );
             },
@@ -220,10 +225,12 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
 
   Widget convoCard(String transcribedText, String translatedText,
       String sourceLang, String targetLang) {
+    final from = sourceLang == 'en' ? 'English' : 'Tibetan';
+    final to = targetLang == 'en' ? 'English' : 'Tibetan';
     return Container(
       padding: const EdgeInsets.symmetric(
-        vertical: 16,
-        horizontal: 8,
+        vertical: 8,
+        horizontal: 16,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -232,6 +239,23 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 4,
+                ),
+                child: Text(
+                  "$from  ->  $to",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ),
+            ],
+          ),
           Text(
             transcribedText,
             style: const TextStyle(
