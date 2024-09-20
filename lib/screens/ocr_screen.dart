@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:monlamai_app/services/file_upload.dart';
+import 'package:monlamai_app/services/ocr_service.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -23,6 +26,12 @@ class _OcrScreenState extends State<OcrScreen> {
     true,
     false
   ]; // Initial state - original selected
+  List<dynamic> textCoordinates = [];
+  Map<String, dynamic> ocrResult = {};
+  final FileUpload _fileUpload = FileUpload();
+  final OcrService _ocrService = OcrService();
+  int imageWidth = 0;
+  int imageHeight = 0;
 
   void _toggleButton(int index) {
     setState(() {
@@ -91,7 +100,8 @@ class _OcrScreenState extends State<OcrScreen> {
       setState(() {
         _capturedImage = photo;
       });
-      log('Picture taken: ${photo.path}');
+      print('Picture taken: ${photo.path}');
+      _sendImage();
     } catch (e) {
       log('Error taking picture: $e');
     }
@@ -101,18 +111,47 @@ class _OcrScreenState extends State<OcrScreen> {
     if (_capturedImage == null) return;
 
     try {
-      // Implement your image upload logic here
-      // For example:
-      // await uploadImage(_capturedImage!);
-      log('Sending image: ${_capturedImage!.path}');
-      // Show a success message or navigate to a new screen
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Image uploaded successfully')),
+      // send the audio file to the server
+      Map<String, dynamic> uploadResult = await _fileUpload.uploadFile(
+        filePath: _capturedImage!.path,
       );
+      print('Sending image: ${_capturedImage!.path}');
+
+      if (uploadResult['success'] == true) {
+        print("Image file uploaded successfully: ${uploadResult['file_url']}");
+        String imageUrl = uploadResult['file_url'];
+
+        // send the image file URL to the OCR service
+        Map<String, dynamic> ocrResponse = await _ocrService.fetchTextFromImage(
+          imageUrl: imageUrl,
+        );
+
+        if (ocrResponse['success'] == true) {
+          print("OCR result: ${ocrResponse['output']} ");
+          print("Type of OCR result: ${ocrResponse['output'].runtimeType} ");
+          imageHeight = ocrResponse['height'];
+          imageWidth = ocrResponse['width'];
+          setState(() {
+            textCoordinates = ocrResponse['output'];
+          });
+
+          // Handle OCR result
+        } else {
+          print("Failed to fetch text from image: ${ocrResponse['error']}");
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to fetch text from image')),
+          );
+        }
+      } else {
+        print("Failed to upload image: ${uploadResult['error']}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to upload image')),
+        );
+      }
     } catch (e) {
-      log('Error sending image: $e');
+      print('Error sending image: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to upload image')),
+        const SnackBar(content: Text('Failed to send image to upload')),
       );
     }
   }
@@ -269,7 +308,25 @@ class _OcrScreenState extends State<OcrScreen> {
         ),
       );
     } else if (_capturedImage != null) {
-      return Image.file(File(_capturedImage!.path));
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          // This gives you the width and height of the widget containing the image
+          final double displayWidth = constraints.maxWidth;
+          final double displayHeight = constraints.maxHeight;
+          return Stack(
+            fit: StackFit.loose,
+            children: [
+              _buildCapturedImage(),
+              (textCoordinates.isNotEmpty)
+                  ? _buildTextOverlay(
+                      displayWidth,
+                      displayHeight,
+                    )
+                  : Container(),
+            ],
+          );
+        },
+      );
     } else if (_isCameraInitialized &&
         _isCameraPermissionGranted &&
         _cameraController != null) {
@@ -277,6 +334,68 @@ class _OcrScreenState extends State<OcrScreen> {
     } else {
       return const Center(child: CircularProgressIndicator());
     }
+  }
+
+  Widget _buildCapturedImage() {
+    return Image.file(
+      File(_capturedImage!.path),
+      fit: BoxFit.cover,
+    );
+  }
+
+  Widget _buildTextOverlay(double displayWidth, double displayHeight) {
+    print(
+        "Display width: $displayWidth, height: $displayHeight, image width: $imageWidth, height: $imageHeight");
+
+    // Calculate scale factors
+    final double scaleX = (displayWidth / imageWidth).toDouble();
+    final double scaleY = (displayHeight / imageHeight).toDouble();
+
+    print("Scale factors: $scaleX, $scaleY");
+
+    // Get only the first item from the list
+    final coord = textCoordinates.first;
+
+    final List<dynamic> boundingBox = coord['boundingBox']['vertices'];
+    final text = utf8.decode(coord['text'].codeUnits);
+    // Calculate the position and size of the text overlay
+    final left = boundingBox[0]['x'].toDouble() * scaleX;
+    final top = boundingBox[0]['y'].toDouble() * scaleY;
+    final width =
+        (boundingBox[1]['x'] - boundingBox[0]['x']).toDouble() * scaleX;
+    final height =
+        (boundingBox[2]['y'] - boundingBox[0]['y']).toDouble() * scaleY;
+
+    print(
+      'Text: $text, left: $left, top: $top, width: $width, height: $height',
+    );
+
+    return Stack(
+      children: [
+        Positioned(
+          left: left,
+          top: top,
+          child: Container(
+            width: width,
+            height: height,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.red,
+                width: 2,
+              ),
+            ),
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+                backgroundColor: Color.fromRGBO(255, 255, 255, 0.5),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
