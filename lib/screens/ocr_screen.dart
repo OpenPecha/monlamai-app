@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:monlamai_app/services/file_upload.dart';
 import 'package:monlamai_app/services/ocr_service.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
@@ -104,6 +105,31 @@ class _OcrScreenState extends State<OcrScreen> {
       _sendImage();
     } catch (e) {
       log('Error taking picture: $e');
+    }
+  }
+
+  // Function to pick images from the gallery
+  Future<void> _pickImages() async {
+    final status = await Permission.photos.request();
+    if (!status.isGranted) {
+      setState(() {
+        _errorMessage = 'To use Monlam AI OCR, allow photo access';
+      });
+      return;
+    }
+    try {
+      final XFile? pickedImage = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+      );
+
+      if (pickedImage != null) {
+        setState(() {
+          _capturedImage = pickedImage;
+        });
+        _sendImage();
+      }
+    } catch (e) {
+      print("Error picking images: $e");
     }
   }
 
@@ -235,15 +261,24 @@ class _OcrScreenState extends State<OcrScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             _capturedImage == null
-                ? const LanguageToggle()
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FloatingActionButton(
+                        onPressed: _pickImages,
+                        tooltip: "Select image from gallery",
+                        child: const Icon(Icons.photo),
+                      ),
+                      const SizedBox(height: 16),
+                      const LanguageToggle()
+                    ],
+                  )
                 : Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ElevatedButton.icon(
                         icon: const Icon(Icons.volume_up),
-                        onPressed: () {
-                          // Implement audio playback logic
-                        },
+                        onPressed: _pickImages,
                         label: const Text('Listen'),
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(

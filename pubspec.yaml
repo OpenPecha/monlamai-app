@@ -46,6 +46,7 @@ dependencies:
   flutter_sound: ^9.15.58
   flutter_tts: ^4.0.2
   audio_session: ^0.1.21
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
