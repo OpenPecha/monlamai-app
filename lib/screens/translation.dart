@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:monlamai_app/providers/favorite_provider.dart';
 import 'package:monlamai_app/screens/home.dart';
 import 'package:monlamai_app/services/translation_service.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
@@ -21,6 +22,7 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
   bool _isTextEmpty = true;
   String translatedText = '';
   bool isLoading = false;
+  bool isFavorite = false;
 
   @override
   void initState() {
@@ -94,15 +96,6 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
           ],
         ),
         leadingWidth: 100,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.star),
-            onPressed: () {
-              // do something
-            },
-            tooltip: 'Favorite',
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
@@ -110,12 +103,56 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
           vertical: 4,
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          TranslationInput(
-            translate: translate,
-            // handleSubmit: handleSubmit,
-            isTextEmpty: _isTextEmpty,
-            inputController: _inputController,
-            targetLang: targetLang,
+          Row(
+            children: [
+              TranslationInput(
+                translate: translate,
+                // handleSubmit: handleSubmit,
+                isTextEmpty: _isTextEmpty,
+                inputController: _inputController,
+                targetLang: targetLang,
+              ),
+              !_isTextEmpty && translatedText.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.star),
+                      color: isFavorite ? Colors.yellow : Colors.grey,
+                      onPressed: () {
+                        setState(() {
+                          isFavorite = !isFavorite;
+                        });
+                        if (isFavorite) {
+                          ref.read(favoriteProvider.notifier).addFavorite(
+                            {
+                              'text': _inputController.text,
+                              'translatedText': translatedText,
+                              'sourceLang': sourceLang,
+                              'targetLang': targetLang,
+                            },
+                          );
+                        } else {
+                          ref.read(favoriteProvider.notifier).removeFavorite(
+                            {
+                              'text': _inputController.text,
+                              'translatedText': translatedText,
+                              'sourceLang': sourceLang,
+                              'targetLang': targetLang,
+                            },
+                          );
+                        }
+                        // // add to favorites
+                        // ref.read(favoriteProvider.notifier).addFavorite(
+                        //   {
+                        //     'text': _inputController.text,
+                        //     'translatedText': translatedText,
+                        //     'sourceLang': sourceLang,
+                        //     'targetLang': targetLang,
+                        //   },
+                        // );
+                      },
+                      tooltip: 'Favorite',
+                    )
+                  : Container(),
+            ],
           ),
           const SizedBox(height: 8.0),
           !_isTextEmpty && translatedText.isNotEmpty
