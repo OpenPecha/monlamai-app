@@ -43,7 +43,7 @@ dependencies:
   camera: ^0.11.0+2
   permission_handler: ^11.3.1
   just_audio: ^0.9.40
-  flutter_sound: ^9.15.58
+  flutter_sound: ^9.16.0
   flutter_tts: ^4.0.2
   audio_session: ^0.1.21
   image_picker: ^1.1.2
@@ -53,6 +53,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  flutter_launcher_icons: "^0.14.1"
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logo512web.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

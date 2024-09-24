@@ -4,10 +4,10 @@ PODS:
   - camera_avfoundation (0.0.1):
     - Flutter
   - Flutter (1.0.0)
-  - flutter_sound (9.15.61):
+  - flutter_sound (9.16.0):
     - Flutter
-    - flutter_sound_core (= 9.15.61)
-  - flutter_sound_core (9.15.61)
+    - flutter_sound_core (= 9.16.0)
+  - flutter_sound_core (9.16.0)
   - flutter_tts (0.0.1):
     - Flutter
   - image_picker_ios (0.0.1):
@@ -70,8 +70,8 @@ SPEC CHECKSUMS:
   audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   camera_avfoundation: dd002b0330f4981e1bbcb46ae9b62829237459a4
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_sound: d7d14b36498f44ebd5fd171c9df95f7c58ddbf03
-  flutter_sound_core: d6d7b1bf19952739e984f7d8967495126d05a1ac
+  flutter_sound: 2a7073dee21936d166987189b30b7009225ca502
+  flutter_sound_core: a846fcaf846c191dbbbf070945765ed6e8f49279
   flutter_tts: 0f492aab6accf87059b72354fcb4ba934304771d
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
