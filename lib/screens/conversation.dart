@@ -126,8 +126,8 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          horizontal: 20,
+          vertical: 20,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -168,7 +168,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
         ),
       ),
       bottomSheet: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const LanguageToggle(),
           const SizedBox(height: 16),
@@ -223,6 +223,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
     );
   }
 
+// might need to refactor this widget to a separate file later
   Widget convoCard(String transcribedText, String translatedText,
       String sourceLang, String targetLang) {
     final from = sourceLang == 'en' ? 'English' : 'Tibetan';

@@ -27,7 +27,7 @@ class FavoritesScreen extends ConsumerWidget {
           tooltip: "Back",
         ),
         title: Text(
-          "Favorites",
+          "Saved",
           style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
         actions: [
@@ -36,7 +36,7 @@ class FavoritesScreen extends ConsumerWidget {
             onPressed: () {
               // do something
             },
-            tooltip: 'Favorite',
+            tooltip: 'Saved',
           ),
         ],
       ),
@@ -49,7 +49,9 @@ class FavoritesScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             favorites.isEmpty
-                ? const Text('No favorites yet')
+                ? const Center(
+                    child: Text("Star a translation to see it here"),
+                  )
                 : const SizedBox(),
             favorites.isNotEmpty ? _favoriteList(favorites) : const SizedBox(),
           ],

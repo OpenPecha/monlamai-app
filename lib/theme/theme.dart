@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 // light bg color
 const lightBgColor = Color(0xFFF2F2F2);
 const lightBtnBgColor = Color(0xFF444444);
-const lightBtnTextColor = Color(0xFFFFFFFF);
+const lightBtnTextColor = Colors.black;
 const secondContainerColor = Color(0xFFEDEDED);
 
 // dark bg color
@@ -34,7 +34,7 @@ ThemeData lightMode = ThemeData(
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       foregroundColor: lightBtnTextColor,
-      backgroundColor: lightBtnBgColor,
+      backgroundColor: Colors.white,
       textStyle: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.normal,

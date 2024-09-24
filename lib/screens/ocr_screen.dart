@@ -1,23 +1,28 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:monlamai_app/services/file_upload.dart';
 import 'package:monlamai_app/services/ocr_service.dart';
+import 'package:monlamai_app/services/translation_service.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
+import 'package:monlamai_app/widgets/speaker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-class OcrScreen extends StatefulWidget {
+class OcrScreen extends ConsumerStatefulWidget {
   const OcrScreen({Key? key}) : super(key: key);
 
   @override
-  State<OcrScreen> createState() => _OcrScreenState();
+  ConsumerState<OcrScreen> createState() => _OcrScreenState();
 }
 
-class _OcrScreenState extends State<OcrScreen> {
+class _OcrScreenState extends ConsumerState<OcrScreen> {
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
   bool _isCameraPermissionGranted = false;
@@ -29,8 +34,11 @@ class _OcrScreenState extends State<OcrScreen> {
   ]; // Initial state - original selected
   List<dynamic> textCoordinates = [];
   Map<String, dynamic> ocrResult = {};
+  String markText = '';
   final FileUpload _fileUpload = FileUpload();
   final OcrService _ocrService = OcrService();
+  final TranslationService _translationService = TranslationService();
+
   int imageWidth = 0;
   int imageHeight = 0;
 
@@ -144,7 +152,6 @@ class _OcrScreenState extends State<OcrScreen> {
       print('Sending image: ${_capturedImage!.path}');
 
       if (uploadResult['success'] == true) {
-        print("Image file uploaded successfully: ${uploadResult['file_url']}");
         String imageUrl = uploadResult['file_url'];
 
         // send the image file URL to the OCR service
@@ -154,14 +161,32 @@ class _OcrScreenState extends State<OcrScreen> {
 
         if (ocrResponse['success'] == true) {
           print("OCR result: ${ocrResponse['output']} ");
-          print("Type of OCR result: ${ocrResponse['output'].runtimeType} ");
           imageHeight = ocrResponse['height'];
           imageWidth = ocrResponse['width'];
           setState(() {
             textCoordinates = ocrResponse['output'];
           });
 
+          // get the first text from the list
+          String text = utf8.decode(ocrResponse['output'][0]['text'].codeUnits);
+          String targetLang = ref.watch(targetLanguageProvider);
+
+          print("Overall text: $text $targetLang");
           // Handle OCR result
+          // send the text to the translation service
+          Map<String, dynamic> translationResponse =
+              await _translationService.translateText(text, targetLang);
+
+          if (translationResponse['success'] == true) {
+            print(
+                "Ocr Translation result: ${translationResponse['translatedText']}");
+            markText = translationResponse['translatedText'];
+          } else {
+            print("Failed to translate text: ${translationResponse['error']}");
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to translate text')),
+            );
+          }
         } else {
           print("Failed to fetch text from image: ${ocrResponse['error']}");
           ScaffoldMessenger.of(context).showSnackBar(
@@ -273,17 +298,38 @@ class _OcrScreenState extends State<OcrScreen> {
                       const LanguageToggle()
                     ],
                   )
-                : Row(
+                : Container(),
+            _capturedImage != null && textCoordinates.isNotEmpty
+                ? Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.volume_up),
-                        onPressed: _pickImages,
-                        label: const Text('Listen'),
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 0,
+                        ),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(22),
+                            color: Theme.of(context)
+                                    .elevatedButtonTheme
+                                    .style
+                                    ?.backgroundColor
+                                    ?.resolve({WidgetState.pressed}) ??
+                                Colors.transparent),
+                        child: Row(
+                          children: [
+                            SpeakerWidget(
+                              text: _isSelected[1]
+                                  ? markText
+                                  : utf8.decode(
+                                      textCoordinates.first['text'].codeUnits),
+                              language: _isSelected[1]
+                                  ? ref.watch(targetLanguageProvider)
+                                  : ref.watch(sourceLanguageProvider),
+                            ),
+                            const Text('Listen'),
+                            const SizedBox(width: 10),
+                          ],
                         ),
                       ),
                       const SizedBox(
@@ -307,7 +353,16 @@ class _OcrScreenState extends State<OcrScreen> {
                       ElevatedButton.icon(
                         icon: const Icon(Icons.copy),
                         onPressed: () {
-                          // Implement audio playback logic
+                          Clipboard.setData(
+                            ClipboardData(
+                                text: _isSelected[1]
+                                    ? markText
+                                    : utf8.decode(textCoordinates
+                                        .first['text'].codeUnits)),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Text copied')),
+                          );
                         },
                         label: const Text('Copy'),
                         style: ElevatedButton.styleFrom(
@@ -317,7 +372,8 @@ class _OcrScreenState extends State<OcrScreen> {
                         ),
                       ),
                     ],
-                  ),
+                  )
+                : Container(),
           ]),
         ),
       ),
@@ -397,7 +453,7 @@ class _OcrScreenState extends State<OcrScreen> {
     final left = boundingBox[0]['x'].toDouble() * scaleX;
     final top = boundingBox[0]['y'].toDouble() * scaleY;
     final width =
-        (boundingBox[1]['x'] - boundingBox[0]['x']).toDouble() * scaleX;
+        (boundingBox[2]['x'] - boundingBox[0]['x']).toDouble() * scaleX;
     final height =
         (boundingBox[2]['y'] - boundingBox[0]['y']).toDouble() * scaleY;
 
@@ -410,21 +466,20 @@ class _OcrScreenState extends State<OcrScreen> {
         Positioned(
           left: left,
           top: top,
-          child: Container(
-            width: width,
-            height: height,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.red,
-                width: 2,
-              ),
-            ),
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 16,
-                backgroundColor: Color.fromRGBO(255, 255, 255, 0.5),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+            child: Container(
+              width: width,
+              height: height,
+              color: Colors.black.withOpacity(0.5),
+              child: Text(
+                _isSelected[1] ? markText : text,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  backgroundColor: Color.fromRGBO(255, 255, 255, 0.5),
+                ),
               ),
             ),
           ),

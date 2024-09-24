@@ -63,21 +63,13 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
             Navigator.pop(context);
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.star),
-            onPressed: () {
-              // Handle star button press
-            },
-          ),
-        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 20,
-              vertical: 16,
+              vertical: 20,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -218,7 +210,10 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
         ),
       ),
       bottomSheet: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(
+          vertical: 30,
+          horizontal: 20,
+        ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           const LanguageToggle(),
           const SizedBox(height: 16.0),

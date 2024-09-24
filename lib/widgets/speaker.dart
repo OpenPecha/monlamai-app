@@ -42,6 +42,8 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
 
   Future<void> initTTS() async {
     flutterTts = FlutterTts();
+    print("SpeakerWidget: ${widget.text}, ${widget.language}");
+
     try {
       await flutterTts.setLanguage("en-US");
       await flutterTts.setPitch(1.0);
@@ -75,6 +77,7 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
       _errorMessage = null;
       _audioUrl = null;
     });
+    print("Fetching audio URL for ${widget.text} in ${widget.language}");
     try {
       final Map<String, dynamic> audioUrl = await ttsService.fetchAudioUrl(
         text: widget.text,
@@ -86,14 +89,14 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
         });
       } else {
         // Handle error
-        log("Failed to fetch audio URL: ${audioUrl['error']}");
+        print("Failed to fetch audio URL: ${audioUrl['error']}");
         setState(() {
           _errorMessage = audioUrl['error'];
         });
       }
     } catch (error) {
       // Handle error
-      log("Error fetching audio URL: $error");
+      print("Error fetching audio URL: $error");
     } finally {
       setState(() {
         _isLoading = false;
@@ -124,15 +127,19 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
     } else if (_audioUrl != null) {
       return AudioPlayerWidget(audioUrl: _audioUrl!);
     } else {
-      return IconButton(
-        icon: const Icon(Icons.volume_up),
-        onPressed: () {
-          if (widget.language == 'en') {
-            speak(widget.text);
-          } else {
-            _fetchAudioUrl();
-          }
-        },
+      return SizedBox(
+        height: 40,
+        width: 40,
+        child: IconButton(
+          icon: const Icon(Icons.volume_up),
+          onPressed: () {
+            if (widget.language == 'en') {
+              speak(widget.text);
+            } else {
+              _fetchAudioUrl();
+            }
+          },
+        ),
       );
     }
   }

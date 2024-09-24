@@ -65,8 +65,8 @@ class HomeScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
+          horizontal: 20,
+          vertical: 20,
         ),
         child: GestureDetector(
           onTap: () => Navigator.of(context).push(
@@ -84,7 +84,10 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       bottomSheet: const Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.symmetric(
+          vertical: 30,
+          horizontal: 20,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -123,31 +126,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class LanguageButton extends StatelessWidget {
-  final String language;
-
-  const LanguageButton({super.key, required this.language});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: () {},
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.all(16),
-        ),
-        child: Text(
-          language,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.normal,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class CircularIconButton extends StatelessWidget {
   final IconData icon;
   final double padding;
@@ -169,8 +147,17 @@ class CircularIconButton extends StatelessWidget {
     return Container(
       alignment: Alignment.center,
       padding: EdgeInsets.all(padding),
-      decoration:
-          const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
       child: IconButton(
         icon: Icon(
           icon,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:monlamai_app/theme/theme_provider.dart';
+import 'package:monlamai_app/providers/theme_provider.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -15,6 +15,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = ref.watch(isDarkModeProvider);
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -62,9 +64,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                   ),
                 ),
                 Switch(
-                  value: ref.watch(themeProvider.notifier).isDarkMode,
+                  value: isDarkMode,
                   onChanged: (value) {
-                    ref.read(themeProvider.notifier).toggleTheme(value);
+                    ref.read(isDarkModeProvider.notifier).toggle();
                   },
                   activeColor: Theme.of(context).colorScheme.secondary,
                 ),
@@ -97,9 +99,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             width: double.infinity,
                             child: MenuItemButton(
                               style: ButtonStyle(
-                                // minimumSize: WidgetStateProperty.all(
-                                //   Size(constraints.maxWidth, 48),
-                                // ),
                                 textStyle: WidgetStateProperty.all(
                                   const TextStyle(fontSize: 16),
                                 ),
@@ -122,9 +121,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     return TextButton.icon(
                       label: Text(
                         _selectedLanguage,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.normal,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
                       ),
                       icon: const Icon(Icons.language),

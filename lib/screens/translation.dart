@@ -139,15 +139,6 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                             },
                           );
                         }
-                        // // add to favorites
-                        // ref.read(favoriteProvider.notifier).addFavorite(
-                        //   {
-                        //     'text': _inputController.text,
-                        //     'translatedText': translatedText,
-                        //     'sourceLang': sourceLang,
-                        //     'targetLang': targetLang,
-                        //   },
-                        // );
                       },
                       tooltip: 'Favorite',
                     )
@@ -259,7 +250,7 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
       ),
       bottomSheet: !_isTextEmpty && translatedText.isNotEmpty
           ? Container(
-              margin: const EdgeInsets.all(16.0),
+              margin: const EdgeInsets.all(20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -286,7 +277,10 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                 ],
               ),
             )
-          : const LanguageToggle(),
+          : const Padding(
+              padding: EdgeInsets.all(20.0),
+              child: LanguageToggle(),
+            ),
     );
   }
 }
