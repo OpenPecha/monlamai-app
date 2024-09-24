@@ -89,6 +89,8 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
 
   Future<void> _requestMicrophonePermission() async {
     final status = await Permission.microphone.request();
+    // Ensure the widget is still mounted after the async operation
+    if (!mounted) return;
     if (!status.isGranted) {
       await showDialog(
         context: context,
@@ -100,14 +102,24 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
             ),
             TextButton(
               onPressed: () {
                 openAppSettings();
                 Navigator.of(context).pop();
               },
-              child: const Text('Allow access'),
+              child: Text(
+                'Allow access',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.secondary,
+                ),
+              ),
             ),
           ],
         ),
@@ -128,6 +140,15 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
       widget.toggleRecording();
     } catch (e) {
       log('Error starting recording: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Failed to start recording',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -139,6 +160,15 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
       await _sendAudio();
     } catch (e) {
       log('Error stopping recording: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Failed to stop recording',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -146,6 +176,10 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
     if (!_recorderIsInited) {
       log('Recorder is not initialized');
       return;
+    }
+    var status = await Permission.microphone.isGranted;
+    if (!status) {
+      await _requestMicrophonePermission();
     }
     return _recorder!.isStopped ? startRecording() : stopRecording();
   }
@@ -203,18 +237,53 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
             widget.toggleLoading(false);
           } else {
             log("Error translating text: ${translationResult['error']}");
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                  'Failed to translate text',
+                ),
+                backgroundColor: Colors.red,
+              ),
+            );
           }
         } else {
           log("Error transcribing audio: ${sttResult['error']}");
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Failed to transcribe audio',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       } else {
         log("Error uploading audio file: ${uploadResult['error']}");
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Failed to upload audio',
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
-
       // For example:
       log("Audio file ready for upload: $_audioPath");
     } catch (e) {
       log("Error preparing file for upload: $e");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Failed to prepare audio file',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
     } finally {
       widget.toggleLoading(false);
     }
@@ -238,9 +307,7 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
               size: 42,
             ),
             color: const Color(0xFF202020),
-            onPressed: () {
-              toggleRecording();
-            },
+            onPressed: toggleRecording,
             tooltip: "Tap to speak",
           ),
         ),

@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FavoriteNotifier extends StateNotifier<List<Map<String, String>>> {

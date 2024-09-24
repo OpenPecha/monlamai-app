@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/widgets/audio_recording.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
+import 'package:monlamai_app/widgets/loading_text.dart';
 import 'package:monlamai_app/widgets/speaker.dart';
 
 class TranscribingScreen extends ConsumerStatefulWidget {
@@ -17,6 +18,7 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
   bool _isLoading = false;
   String _transcribedText = '';
   String _translatedText = '';
+  bool _isLiked = false;
 
   void toggleRecording() {
     // Handle recording toggle
@@ -93,13 +95,7 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
                       )
                     : Container(),
                 !_isRecording && _isLoading && _transcribedText.isEmpty
-                    ? const Text(
-                        'Loading ...',
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.grey,
-                        ),
-                      )
+                    ? const LoadingText()
                     : Container(),
                 _transcribedText.isNotEmpty &&
                         _translatedText.isNotEmpty &&
@@ -185,9 +181,15 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
                                     icon: const Icon(Icons.copy_outlined),
                                   ),
                                   IconButton(
+                                    color: _isLiked
+                                        ? Colors.green
+                                        : Colors.black87,
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
                                       // send feedback to the server
+                                      setState(() {
+                                        _isLiked = !_isLiked;
+                                      });
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         const SnackBar(

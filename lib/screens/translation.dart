@@ -23,6 +23,7 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
   String translatedText = '';
   bool isLoading = false;
   bool isFavorite = false;
+  bool _isLiked = false;
 
   @override
   void initState() {
@@ -59,6 +60,12 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
     } catch (error) {
       // Handle error
       log("Translation error: $error");
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Translation failed. Please try again.'),
+        ),
+      );
     } finally {
       setState(() {
         isLoading = false;
@@ -230,9 +237,13 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                           icon: const Icon(Icons.copy_outlined),
                         ),
                         IconButton(
+                          color: _isLiked ? Colors.green : Colors.black87,
                           padding: EdgeInsets.zero,
                           onPressed: () {
                             // send feedback to the server
+                            setState(() {
+                              _isLiked = !_isLiked;
+                            });
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                   content: Text('Thanks for the feedback')),

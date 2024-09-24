@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/providers/shared_preferences_provider.dart';
-import 'package:monlamai_app/theme/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 // Provider for isDarkMode

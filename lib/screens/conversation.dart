@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/screens/split_screen.dart';
 import 'package:monlamai_app/widgets/audio_recording.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
+import 'package:monlamai_app/widgets/loading_text.dart';
 import 'package:monlamai_app/widgets/speaker.dart';
 
 class Conversation {
@@ -27,6 +28,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
   bool _isSourceRecording = false;
   bool _isTargetRecording = false;
   bool _isLoading = false;
+  bool _isLiked = false;
   // list of conversation messages
   final List<Map<String, String>> _conversations = [];
   final ScrollController _scrollController = ScrollController();
@@ -154,13 +156,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                   )
                 : Container(),
             _isLoading && !_isSourceRecording && !_isTargetRecording
-                ? const Text(
-                    'Loading ...',
-                    style: TextStyle(
-                      fontSize: 22,
-                      color: Colors.grey,
-                    ),
-                  )
+                ? const LoadingText()
                 : Container(),
             const SizedBox(height: 16),
             _conversations.isNotEmpty ? _sourceOutput() : Container(),
@@ -331,9 +327,13 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                     icon: const Icon(Icons.copy_outlined),
                   ),
                   IconButton(
+                    color: _isLiked ? Colors.green : Colors.black87,
                     padding: EdgeInsets.zero,
                     onPressed: () {
                       // send feedback to the server
+                      setState(() {
+                        _isLiked = !_isLiked;
+                      });
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                             content: Text('Thanks for the feedback')),

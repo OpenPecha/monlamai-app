@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
@@ -19,8 +18,6 @@ class TtsService {
       // 'language': language,
     });
 
-    log("apiUrl: $_apiUrl, apiKey: $_apiKey, body: $body");
-
     try {
       final response = await http.post(
         url,
@@ -33,14 +30,14 @@ class TtsService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        log("response: $data");
+        print("fetchAudioUrl response: $data");
         return {
           "success": true,
           "output": data["output"],
         };
       } else {
         // Handle HTTP error
-        log("Failed to fetch audio URL: ${response.statusCode}");
+        print("Failed to fetch audio URL: ${response.statusCode}");
         return {
           "success": false,
           "error": "Failed to fetch audio URL: ${response.statusCode}",
@@ -48,7 +45,7 @@ class TtsService {
       }
     } catch (e) {
       // Handle any other exceptions
-      log('Error fetching audio URL: $e');
+      print('Error fetching audio URL: $e');
       return {
         "success": false,
         "error": "Error fetching audio URL: $e",

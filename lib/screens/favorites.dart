@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,7 +10,6 @@ class FavoritesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoriteProvider);
-    log('Favorites: $favorites');
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -187,17 +184,6 @@ class FavoritesScreen extends ConsumerWidget {
                       );
                     },
                     icon: const Icon(Icons.copy_outlined),
-                  ),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      // send feedback to the server
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Thanks for the feedback')),
-                      );
-                    },
-                    icon: const Icon(Icons.thumb_up),
                   ),
                 ],
               ),

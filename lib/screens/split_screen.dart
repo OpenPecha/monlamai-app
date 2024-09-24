@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/widgets/audio_recording.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
+import 'package:monlamai_app/widgets/loading_text.dart';
 import 'package:monlamai_app/widgets/speaker.dart';
 
 class SplitScreen extends ConsumerStatefulWidget {
@@ -28,19 +29,6 @@ class _SplitScreenState extends ConsumerState<SplitScreen> {
       _isLoading = loading;
     });
   }
-
-  // void setTexts(String sourceText, String targetText, String sourceLang,
-  //     String targetLang) {
-  //   // Handle transcribed text
-  //   setState(() {
-  //     widget.conversationList.add({
-  //       "sourceText": sourceText,
-  //       "soucreLang": sourceLang,
-  //       "targetText": targetText,
-  //       "targetLang": targetLang,
-  //     });
-  //   });
-  // }
 
   // reset both text
   void resetText() {
@@ -100,6 +88,7 @@ class _SplitScreenState extends ConsumerState<SplitScreen> {
                           instruction: 'Tap on the Mic to Start',
                           conversationList: widget.conversationList,
                           isRecording: _isTargetRecording,
+                          isloading: _isLoading,
                           toggleRecording: toggleTargetRecording,
                           toggleLoading: toggleLoading,
                           setTexts: widget.setTexts,
@@ -116,6 +105,7 @@ class _SplitScreenState extends ConsumerState<SplitScreen> {
                         instruction: 'Tap on the Mic to Start',
                         conversationList: widget.conversationList,
                         isRecording: _isSourceRecording,
+                        isloading: _isLoading,
                         toggleRecording: toggleSourceRecording,
                         toggleLoading: toggleLoading,
                         setTexts: widget.setTexts,
@@ -140,6 +130,7 @@ class _ConversationSide extends ConsumerWidget {
   final List<Map<String, String>> conversationList;
   final List<String> filteredList;
   final bool isRecording;
+  final bool isloading;
   final Function toggleRecording;
   final Function toggleLoading;
   final Function setTexts;
@@ -151,6 +142,7 @@ class _ConversationSide extends ConsumerWidget {
     required this.instruction,
     required this.conversationList,
     required this.isRecording,
+    required this.isloading,
     required this.toggleRecording,
     required this.toggleLoading,
     required this.setTexts,
@@ -184,6 +176,7 @@ class _ConversationSide extends ConsumerWidget {
 
     return Column(
       children: [
+        isloading ? const LoadingText() : const SizedBox(),
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 50),

@@ -184,24 +184,28 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
             markText = translationResponse['translatedText'];
           } else {
             print("Failed to translate text: ${translationResponse['error']}");
+            if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Failed to translate text')),
             );
           }
         } else {
           print("Failed to fetch text from image: ${ocrResponse['error']}");
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to fetch text from image')),
           );
         }
       } else {
         print("Failed to upload image: ${uploadResult['error']}");
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to upload image')),
         );
       }
     } catch (e) {
       print('Error sending image: $e');
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to send image to upload')),
       );

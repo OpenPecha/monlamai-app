@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:monlamai_app/services/tts_service.dart';
@@ -52,7 +50,7 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
         isTtsInitialized = true;
       });
     } catch (e) {
-      log("TTS initialization failed: $e");
+      print("TTS initialization failed: $e");
       // Handle the error, perhaps show a dialog to the user
     }
   }
@@ -62,11 +60,11 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
       try {
         await flutterTts.speak(text);
       } catch (e) {
-        log("TTS speak failed: $e");
+        print("TTS speak failed: $e");
         // Handle the error, perhaps show a dialog to the user
       }
     } else {
-      log("TTS not initialized");
+      print("TTS not initialized");
       // Inform the user that TTS is not ready
     }
   }

@@ -46,7 +46,7 @@ class TranslationInput extends StatelessWidget {
                   hintText: 'Enter text',
                   border: InputBorder.none,
                   hintStyle: TextStyle(
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.normal,
                   ),
                 ),
