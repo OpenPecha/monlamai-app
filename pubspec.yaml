@@ -47,6 +47,8 @@ dependencies:
   flutter_tts: ^4.0.2
   audio_session: ^0.1.21
   image_picker: ^1.1.2
+  shared_preferences: ^2.3.2
+  share_plus: ^10.0.2
 
 dev_dependencies:
   flutter_test:

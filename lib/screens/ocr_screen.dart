@@ -14,6 +14,7 @@ import 'package:monlamai_app/services/translation_service.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
 import 'package:monlamai_app/widgets/speaker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 
 class OcrScreen extends ConsumerStatefulWidget {
   const OcrScreen({Key? key}) : super(key: key);
@@ -338,7 +339,16 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
                       ElevatedButton.icon(
                         icon: const Icon(Icons.share),
                         onPressed: () {
-                          // Implement audio playback logic
+                          final RenderBox box =
+                              context.findRenderObject() as RenderBox;
+                          Share.share(
+                            _isSelected[1]
+                                ? markText
+                                : utf8.decode(
+                                    textCoordinates.first['text'].codeUnits),
+                            sharePositionOrigin:
+                                box.localToGlobal(Offset.zero) & box.size,
+                          );
                         },
                         label: const Text('Share'),
                         style: ElevatedButton.styleFrom(
