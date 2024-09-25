@@ -96,7 +96,17 @@ class _SplitScreenState extends ConsumerState<SplitScreen> {
                         ),
                       ),
                     ),
-                    const BackButton(),
+                    Row(
+                      children: [
+                        const BackButton(),
+                        Divider(
+                          thickness: 1,
+                          height: 1,
+                          color: Theme.of(context).colorScheme.secondary,
+                          indent: 20,
+                        ),
+                      ],
+                    ),
                     Container(width: 2, color: Colors.pink[300]),
                     Expanded(
                       child: _ConversationSide(
@@ -192,17 +202,23 @@ class _ConversationSide extends ConsumerWidget {
                     horizontal: 16,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).scaffoldBackgroundColor,
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.secondary,
+                      width: 1,
+                    ),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        text,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
+                      Expanded(
+                        child: Text(
+                          text,
+                          maxLines: null,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                       SpeakerWidget(text: text, language: lang),

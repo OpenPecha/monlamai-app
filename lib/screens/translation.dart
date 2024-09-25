@@ -237,7 +237,9 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                           icon: const Icon(Icons.copy_outlined),
                         ),
                         IconButton(
-                          color: _isLiked ? Colors.green : Colors.black87,
+                          color: _isLiked
+                              ? Colors.green
+                              : Theme.of(context).colorScheme.secondary,
                           padding: EdgeInsets.zero,
                           onPressed: () {
                             // send feedback to the server

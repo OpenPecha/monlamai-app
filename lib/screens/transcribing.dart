@@ -183,7 +183,9 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
                                   IconButton(
                                     color: _isLiked
                                         ? Colors.green
-                                        : Colors.black87,
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .secondary,
                                     padding: EdgeInsets.zero,
                                     onPressed: () {
                                       // send feedback to the server

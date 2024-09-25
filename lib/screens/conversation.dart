@@ -230,8 +230,12 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
         horizontal: 16,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.secondary,
+          width: 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -327,7 +331,9 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                     icon: const Icon(Icons.copy_outlined),
                   ),
                   IconButton(
-                    color: _isLiked ? Colors.green : Colors.black87,
+                    color: _isLiked
+                        ? Colors.green
+                        : Theme.of(context).colorScheme.secondary,
                     padding: EdgeInsets.zero,
                     onPressed: () {
                       // send feedback to the server
