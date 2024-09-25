@@ -42,7 +42,6 @@ dependencies:
   uuid: ^4.1.0
   camera: ^0.11.0+2
   permission_handler: ^11.3.1
-  just_audio: ^0.9.40
   flutter_sound: ^9.16.0
   flutter_tts: ^4.0.2
   audio_session: ^0.1.21
@@ -77,6 +76,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  generate: true
 
   # To add assets to your application, add an assets section, like this:
   assets:

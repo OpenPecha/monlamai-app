@@ -59,7 +59,6 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
 
   Future<void> _requestCameraPermission() async {
     final status = await Permission.camera.request();
-
     setState(() {
       _isCameraPermissionGranted = status.isGranted;
     });
@@ -104,7 +103,6 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
     if (!_isCameraInitialized || _cameraController == null) {
       return;
     }
-
     try {
       final XFile photo = await _cameraController!.takePicture();
       setState(() {
@@ -121,10 +119,41 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
   Future<void> _pickImages() async {
     final status = await Permission.photos.request();
     if (!status.isGranted) {
-      setState(() {
-        _errorMessage = 'To use Monlam AI OCR, allow photo access';
-      });
-      return;
+      if (!mounted) return;
+      if (!status.isGranted) {
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Can\'t access photos'),
+            content: const Text(
+              "To translate your photos, allow access to your photo library",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  openAppSettings();
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  'Allow access',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
     }
     try {
       final XFile? pickedImage = await ImagePicker().pickImage(
@@ -220,182 +249,188 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              // Handle back button press
-              Navigator.pop(context);
-            },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Handle back button press
+            Navigator.pop(context);
+          },
+        ),
+        title: _capturedImage != null
+            ? ToggleButtons(
+                isSelected: _isSelected,
+                onPressed: _toggleButton,
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.black, // Unselected text color
+                selectedColor: Colors.white, // Selected text color
+                fillColor: Colors.black,
+                constraints: const BoxConstraints(
+                  minWidth: 100,
+                  minHeight: 30,
+                ), // Background color when selected
+                children: const [
+                  Text(
+                    'Original',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  Text(
+                    'Translated',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ],
+              )
+            : Container(),
+        actions: [
+          _capturedImage != null
+              ? IconButton(
+                  onPressed: _resetCapture,
+                  icon: const Icon(Icons.close),
+                )
+              : Container()
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _buildMainContent(),
           ),
-          title: _capturedImage != null
-              ? ToggleButtons(
-                  isSelected: _isSelected,
-                  onPressed: _toggleButton,
-                  borderRadius: BorderRadius.circular(20),
-                  color: Colors.black, // Unselected text color
-                  selectedColor: Colors.white, // Selected text color
-                  fillColor: Colors.black,
-                  constraints: const BoxConstraints(
-                    minWidth: 100,
-                    minHeight: 30,
-                  ), // Background color when selected
-                  children: const [
-                    Text(
-                      'Original',
-                      style: TextStyle(fontSize: 14),
+        ],
+      ),
+      bottomSheet: Container(
+        color: Colors.transparent,
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          _capturedImage == null && _isCameraInitialized
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: FloatingActionButton(
+                              onPressed: _pickImages,
+                              tooltip: "Select image from gallery",
+                              child: const Icon(Icons.photo),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.center,
+                            child: FloatingActionButton(
+                              shape: const CircleBorder(),
+                              onPressed:
+                                  _isCameraInitialized ? _takePicture : null,
+                              disabledElevation: 4,
+                              child: const Icon(
+                                Icons.circle,
+                                size: 50,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    Text(
-                      'Translated',
-                      style: TextStyle(fontSize: 14),
+                    const SizedBox(height: 16),
+                    const LanguageToggle()
+                  ],
+                )
+              : Container(),
+          _capturedImage != null && textCoordinates.isNotEmpty
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 0,
+                      ),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(22),
+                          color: Theme.of(context)
+                                  .elevatedButtonTheme
+                                  .style
+                                  ?.backgroundColor
+                                  ?.resolve({WidgetState.pressed}) ??
+                              Colors.transparent),
+                      child: Row(
+                        children: [
+                          SpeakerWidget(
+                            text: _isSelected[1]
+                                ? markText
+                                : utf8.decode(
+                                    textCoordinates.first['text'].codeUnits),
+                            language: _isSelected[1]
+                                ? ref.watch(targetLanguageProvider)
+                                : ref.watch(sourceLanguageProvider),
+                          ),
+                          const Text('Listen'),
+                          const SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.share),
+                      onPressed: () {
+                        final RenderBox box =
+                            context.findRenderObject() as RenderBox;
+                        Share.share(
+                          _isSelected[1]
+                              ? markText
+                              : utf8.decode(
+                                  textCoordinates.first['text'].codeUnits),
+                          sharePositionOrigin:
+                              box.localToGlobal(Offset.zero) & box.size,
+                        );
+                      },
+                      label: const Text('Share'),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.copy),
+                      onPressed: () {
+                        Clipboard.setData(
+                          ClipboardData(
+                              text: _isSelected[1]
+                                  ? markText
+                                  : utf8.decode(
+                                      textCoordinates.first['text'].codeUnits)),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Text copied')),
+                        );
+                      },
+                      label: const Text('Copy'),
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
                     ),
                   ],
                 )
               : Container(),
-          actions: [
-            _capturedImage != null
-                ? IconButton(
-                    onPressed: _resetCapture,
-                    icon: const Icon(Icons.close),
-                  )
-                : Container()
-          ],
-        ),
-        body: Column(
-          children: [
-            Expanded(
-              child: _buildMainContent(),
-            ),
-          ],
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: _errorMessage.isEmpty &&
-                _isCameraInitialized &&
-                _capturedImage == null
-            ? Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: FloatingActionButton(
-                  shape: const CircleBorder(),
-                  onPressed: _takePicture,
-                  child: const Icon(
-                    Icons.circle,
-                    size: 50,
-                  ),
-                ),
-              )
-            : null,
-        bottomSheet: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            _capturedImage == null
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      FloatingActionButton(
-                        onPressed: _pickImages,
-                        tooltip: "Select image from gallery",
-                        child: const Icon(Icons.photo),
-                      ),
-                      const SizedBox(height: 16),
-                      const LanguageToggle()
-                    ],
-                  )
-                : Container(),
-            _capturedImage != null && textCoordinates.isNotEmpty
-                ? Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 0,
-                        ),
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(22),
-                            color: Theme.of(context)
-                                    .elevatedButtonTheme
-                                    .style
-                                    ?.backgroundColor
-                                    ?.resolve({WidgetState.pressed}) ??
-                                Colors.transparent),
-                        child: Row(
-                          children: [
-                            SpeakerWidget(
-                              text: _isSelected[1]
-                                  ? markText
-                                  : utf8.decode(
-                                      textCoordinates.first['text'].codeUnits),
-                              language: _isSelected[1]
-                                  ? ref.watch(targetLanguageProvider)
-                                  : ref.watch(sourceLanguageProvider),
-                            ),
-                            const Text('Listen'),
-                            const SizedBox(width: 10),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.share),
-                        onPressed: () {
-                          final RenderBox box =
-                              context.findRenderObject() as RenderBox;
-                          Share.share(
-                            _isSelected[1]
-                                ? markText
-                                : utf8.decode(
-                                    textCoordinates.first['text'].codeUnits),
-                            sharePositionOrigin:
-                                box.localToGlobal(Offset.zero) & box.size,
-                          );
-                        },
-                        label: const Text('Share'),
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.copy),
-                        onPressed: () {
-                          Clipboard.setData(
-                            ClipboardData(
-                                text: _isSelected[1]
-                                    ? markText
-                                    : utf8.decode(textCoordinates
-                                        .first['text'].codeUnits)),
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Text copied')),
-                          );
-                        },
-                        label: const Text('Copy'),
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
-                : Container(),
-          ]),
-        ),
+        ]),
       ),
     );
   }
 
   Widget _buildMainContent() {
-    if (_errorMessage.isNotEmpty) {
+    if (_errorMessage.isNotEmpty && _capturedImage == null) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
