@@ -1,4 +1,4 @@
-package com.example.monlamai_app
+package ai.monlam.monlamai_app
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -30,10 +30,10 @@
 	<string>This app needs access to the camera to capture photos.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to the microphone to record audio.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This application uses speech recognition to convert your speech to text</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs access to photos.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This application uses speech recognition to convert your speech to text</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
