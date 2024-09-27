@@ -32,21 +32,23 @@ class TranslationService {
 
       // Parse the response JSON
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      print('Response: $responseData');
+      log(
+        'Response: $responseData',
+      );
 
       // Check for successful response
       if (response.statusCode == 200) {
         // Return the translated text
         final decodedTranslation =
             utf8.decode(responseData['translation'].codeUnits);
-        print("Decoded Translation: $decodedTranslation");
+        log("Decoded Translation: $decodedTranslation");
         return {
           "success": true,
           'translatedText': decodedTranslation,
         };
       } else {
         // Handle unsuccessful response
-        print('Failed to translate text. Status Code: ${response.statusCode}');
+        log('Failed to translate text. Status Code: ${response.statusCode}');
         return {
           "success": false,
           "error":
@@ -55,7 +57,7 @@ class TranslationService {
       }
     } catch (e) {
       // Handle any errors that occurred during the request
-      print('Error translating text: $e');
+      log('Error translating text: $e');
       return {
         "success": false,
         "error": "Failed to translate text. Error: ${e.toString()}",

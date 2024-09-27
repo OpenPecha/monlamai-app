@@ -9,8 +9,7 @@ import 'package:monlamai_app/widgets/speaker.dart';
 
 class SplitScreen extends ConsumerStatefulWidget {
   const SplitScreen(
-      {Key? key, required this.conversationList, required this.setTexts})
-      : super(key: key);
+      {super.key, required this.conversationList, required this.setTexts});
   final List<Map<String, String>> conversationList;
   final Function setTexts;
 
@@ -157,8 +156,7 @@ class _ConversationSide extends ConsumerWidget {
     required this.toggleLoading,
     required this.setTexts,
     required this.resetText,
-    Key? key,
-  })  : filteredList = conversationList
+  }) : filteredList = conversationList
             .map((conversation) {
               if (conversation['soucreLang'] == language) {
                 return conversation['sourceText']!;
@@ -169,8 +167,7 @@ class _ConversationSide extends ConsumerWidget {
             })
             .where((text) => text != null)
             .cast<String>()
-            .toList(),
-        super(key: key);
+            .toList();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

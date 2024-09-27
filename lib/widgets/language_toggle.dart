@@ -5,7 +5,7 @@ final sourceLanguageProvider = StateProvider<String>((ref) => 'en');
 final targetLanguageProvider = StateProvider<String>((ref) => 'bo');
 
 class LanguageToggle extends ConsumerWidget {
-  const LanguageToggle({Key? key}) : super(key: key);
+  const LanguageToggle({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -70,8 +70,7 @@ class ButtonWrapper extends StatefulWidget {
   final String? type;
 
   const ButtonWrapper(
-      {Key? key, required this.value, required this.onChanged, this.type})
-      : super(key: key);
+      {super.key, required this.value, required this.onChanged, this.type});
 
   @override
   State<ButtonWrapper> createState() => _ButtonWrapperState();

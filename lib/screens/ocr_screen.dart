@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:developer';
+import 'dart:developer' as developer;
 import 'dart:io';
 import 'dart:ui';
 
@@ -17,7 +17,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
 class OcrScreen extends ConsumerStatefulWidget {
-  const OcrScreen({Key? key}) : super(key: key);
+  const OcrScreen({super.key});
 
   @override
   ConsumerState<OcrScreen> createState() => _OcrScreenState();
@@ -108,10 +108,10 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
       setState(() {
         _capturedImage = photo;
       });
-      print('Picture taken: ${photo.path}');
+      developer.log('Picture taken: ${photo.path}');
       _sendImage();
     } catch (e) {
-      log('Error taking picture: $e');
+      developer.log('Error taking picture: $e', error: jsonEncode(e));
     }
   }
 
@@ -167,7 +167,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
         _sendImage();
       }
     } catch (e) {
-      print("Error picking images: $e");
+      developer.log('Error picking image: $e', error: jsonEncode(e));
     }
   }
 
@@ -175,11 +175,11 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
     if (_capturedImage == null) return;
 
     try {
-      // send the audio file to the server
+      // send the a file to the server
       Map<String, dynamic> uploadResult = await _fileUpload.uploadFile(
         filePath: _capturedImage!.path,
       );
-      print('Sending image: ${_capturedImage!.path}');
+      developer.log('Upload result: $uploadResult');
 
       if (uploadResult['success'] == true) {
         String imageUrl = uploadResult['file_url'];
@@ -190,7 +190,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
         );
 
         if (ocrResponse['success'] == true) {
-          print("OCR result: ${ocrResponse['output']} ");
+          developer.log('OCR response: $ocrResponse');
           imageHeight = ocrResponse['height'];
           imageWidth = ocrResponse['width'];
           setState(() {
@@ -201,39 +201,42 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
           String text = utf8.decode(ocrResponse['output'][0]['text'].codeUnits);
           String targetLang = ref.watch(targetLanguageProvider);
 
-          print("Overall text: $text $targetLang");
+          developer.log('OCR result: $text, target language: $targetLang');
+
           // Handle OCR result
           // send the text to the translation service
           Map<String, dynamic> translationResponse =
               await _translationService.translateText(text, targetLang);
 
           if (translationResponse['success'] == true) {
-            print(
+            developer.log(
                 "Ocr Translation result: ${translationResponse['translatedText']}");
             markText = translationResponse['translatedText'];
           } else {
-            print("Failed to translate text: ${translationResponse['error']}");
+            developer.log(
+                "Failed to translate text: ${translationResponse['error']}");
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Failed to translate text')),
             );
           }
         } else {
-          print("Failed to fetch text from image: ${ocrResponse['error']}");
+          developer
+              .log("Failed to fetch text from image: ${ocrResponse['error']}");
           if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Failed to fetch text from image')),
           );
         }
       } else {
-        print("Failed to upload image: ${uploadResult['error']}");
+        developer.log("Failed to upload image: ${uploadResult['error']}");
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to upload image')),
         );
       }
     } catch (e) {
-      print('Error sending image: $e');
+      developer.log('Error sending image: $e', error: jsonEncode(e));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to send image to upload')),
@@ -484,14 +487,14 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
   }
 
   Widget _buildTextOverlay(double displayWidth, double displayHeight) {
-    print(
+    debugPrint(
         "Display width: $displayWidth, height: $displayHeight, image width: $imageWidth, height: $imageHeight");
 
     // Calculate scale factors
     final double scaleX = (displayWidth / imageWidth).toDouble();
     final double scaleY = (displayHeight / imageHeight).toDouble();
 
-    print("Scale factors: $scaleX, $scaleY");
+    developer.log("Scale X: $scaleX, Scale Y: $scaleY");
 
     // Get only the first item from the list
     final coord = textCoordinates.first;
@@ -505,10 +508,6 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
         (boundingBox[2]['x'] - boundingBox[0]['x']).toDouble() * scaleX;
     final height =
         (boundingBox[2]['y'] - boundingBox[0]['y']).toDouble() * scaleY;
-
-    print(
-      'Text: $text, left: $left, top: $top, width: $width, height: $height',
-    );
 
     return Stack(
       children: [

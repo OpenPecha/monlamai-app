@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:monlamai_app/services/tts_service.dart';
 import 'package:monlamai_app/widgets/audio_player.dart';
+import 'dart:developer' as developer;
 
 class SpeakerWidget extends StatefulWidget {
   const SpeakerWidget({
@@ -40,7 +41,7 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
 
   Future<void> initTTS() async {
     flutterTts = FlutterTts();
-    print("SpeakerWidget: ${widget.text}, ${widget.language}");
+    developer.log("SpeakerWidget: ${widget.text}, ${widget.language}");
 
     try {
       await flutterTts.setLanguage("en-US");
@@ -50,8 +51,8 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
         isTtsInitialized = true;
       });
     } catch (e) {
-      print("TTS initialization failed: $e");
       // Handle the error, perhaps show a dialog to the user
+      developer.log("TTS initialization failed: $e");
     }
   }
 
@@ -60,12 +61,12 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
       try {
         await flutterTts.speak(text);
       } catch (e) {
-        print("TTS speak failed: $e");
         // Handle the error, perhaps show a dialog to the user
+        developer.log("Error speaking: $e");
       }
     } else {
-      print("TTS not initialized");
       // Inform the user that TTS is not ready
+      developer.log("TTS not initialized");
     }
   }
 
@@ -75,7 +76,8 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
       _errorMessage = null;
       _audioUrl = null;
     });
-    print("Fetching audio URL for ${widget.text} in ${widget.language}");
+    developer
+        .log("Fetching audio URL for ${widget.text} in ${widget.language}");
     try {
       final Map<String, dynamic> audioUrl = await ttsService.fetchAudioUrl(
         text: widget.text,
@@ -87,14 +89,14 @@ class _SpeakerWidgetState extends State<SpeakerWidget> {
         });
       } else {
         // Handle error
-        print("Failed to fetch audio URL: ${audioUrl['error']}");
+        developer.log("Failed to fetch audio URL: ${audioUrl['error']}");
         setState(() {
           _errorMessage = audioUrl['error'];
         });
       }
     } catch (error) {
       // Handle error
-      print("Error fetching audio URL: $error");
+      developer.log("Error fetching audio URL: $error");
     } finally {
       setState(() {
         _isLoading = false;

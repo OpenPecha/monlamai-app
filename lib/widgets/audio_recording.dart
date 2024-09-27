@@ -13,7 +13,7 @@ import 'package:audio_session/audio_session.dart';
 
 class AudioRecordingWidget extends ConsumerStatefulWidget {
   const AudioRecordingWidget({
-    Key? key,
+    super.key,
     required this.isRecording,
     required this.toggleRecording,
     required this.toggleLoading,
@@ -21,7 +21,7 @@ class AudioRecordingWidget extends ConsumerStatefulWidget {
     required this.resetText,
     required this.langFrom,
     required this.langTo,
-  }) : super(key: key);
+  });
 
   final bool isRecording;
   final Function toggleRecording;

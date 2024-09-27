@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class FavoriteNotifier extends StateNotifier<List<Map<String, String>>> {
-  FavoriteNotifier(List<Map<String, String>> state) : super(state);
+  FavoriteNotifier(super.state);
 
   void addFavorite(Map<String, String> favorite) {
     state.add(favorite);
