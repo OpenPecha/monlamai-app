@@ -230,6 +230,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.14.1"
+  flutter_lints:
+    dependency: "direct dev"
+    description:
+      name: flutter_lints
+      sha256: "5398f14efa795ffb7a33e9b6a08798b26a180edac4ad7db3f231e40f82ce11e1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -250,26 +258,26 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_sound
-      sha256: "009322e3138f8690f3c8d84d17549df3e8c22c1641dac0bca880030ea06a50fd"
+      sha256: c952c65baf3adcb0059ee56610358669eb75494cd29788979bedadb1e433db88
       url: "https://pub.dev"
     source: hosted
-    version: "9.16.0"
+    version: "9.16.1"
   flutter_sound_platform_interface:
     dependency: transitive
     description:
       name: flutter_sound_platform_interface
-      sha256: ce7ac9a9bec6c5582851a83bb89aec698436f725da60d7ca7e831fc02e1ead09
+      sha256: "35e2ccdb6df1bbe6fbf63ab166a89f379eb001b8e16a18eecbe8c4aace92701d"
       url: "https://pub.dev"
     source: hosted
-    version: "9.16.0"
+    version: "9.16.1"
   flutter_sound_web:
     dependency: transitive
     description:
       name: flutter_sound_web
-      sha256: e4c0418457bf62f5937424cd43bcc7121f9531d75f11cdfde3a2d63a21a3ae37
+      sha256: c29b78a4811698f1fca0fa217cc2beead62c1ec545e031505852beae21323148
       url: "https://pub.dev"
     source: hosted
-    version: "9.16.0"
+    version: "9.16.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -416,6 +424,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  lints:
+    dependency: transitive
+    description:
+      name: lints
+      sha256: "3315600f3fb3b135be672bf4a178c55f274bebe368325ae18462c89ac1e3b413"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
   logger:
     dependency: transitive
     description:
@@ -825,10 +841,10 @@ packages:
     dependency: "direct main"
     description:
       name: uuid
-      sha256: f33d6bb662f0e4f79dcd7ada2e6170f3b3a2530c28fc41f49a411ddedd576a77
+      sha256: a5be9ef6618a7ac1e964353ef476418026db906c4facdedaa299b7a2e71690ff
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.0"
+    version: "4.5.1"
   vector_math:
     dependency: transitive
     description:
