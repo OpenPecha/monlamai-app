@@ -421,30 +421,24 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
     debugPrint(
         "Display width: $displayWidth, height: $displayHeight, image width: $imageWidth, height: $imageHeight");
 
-    textCoordinates.asMap().entries.map((entry) {
-      int blockIndex = entry.key;
-      dynamic block = entry.value;
+    for (int blockIndex = 0;
+        blockIndex < textCoordinates.length;
+        blockIndex++) {
+      dynamic block = textCoordinates[blockIndex];
 
-      var xRatio = (displayWidth / imageWidth).toStringAsFixed(2);
-      var yRatio = (displayHeight / imageHeight).toStringAsFixed(2);
+      double xScale = (displayWidth / imageWidth).toDouble();
+      double yScale = (displayHeight / imageHeight).toDouble();
 
-      double xScale = double.parse(xRatio);
-      double yScale = double.parse(yRatio);
+      Map<String, double> blockBounds =
+          getBoundingBox(block['bounds']['vertices'], xScale, yScale);
 
-      Map<String, double> blockBounds = getBoundingBox(
-        block['bounds']['vertices'],
-        xScale,
-        yScale,
-      );
       String combinedText = (block['words'] as List<dynamic>)
           .map((word) => word['text'].toString())
           .join(" ");
 
       Map<String, double> firstWordBounds = getBoundingBox(
-        block['words'][0]['bounds']['vertices'],
-        xScale,
-        yScale,
-      );
+          block['words'][0]['bounds']['vertices'], xScale, yScale);
+
       double wordHeight = firstWordBounds['bottom']! - firstWordBounds['top']!;
       double fontSize = calculateFontSizeFromWordHeight(wordHeight);
 
@@ -456,19 +450,22 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
             width: blockBounds['right']! - blockBounds['left']!,
             height: blockBounds['bottom']! - blockBounds['top']!,
             color: Colors.black.withOpacity(0.6),
-            child: EachMark(
-                text: combinedText,
-                translatedTexts: translatedTexts,
-                addTranslatedText: addTranslatedText,
-                fontSize: fontSize,
-                isSelected: _isSelected,
-                targetLang: ref.watch(
-                  targetLanguageProvider,
-                )),
+            child: SingleChildScrollView(
+              child: EachMark(
+                  text: combinedText,
+                  translatedTexts: translatedTexts,
+                  addTranslatedText: addTranslatedText,
+                  fontSize: fontSize,
+                  isSelected: _isSelected,
+                  targetLang: ref.watch(
+                    targetLanguageProvider,
+                  )),
+            ),
           ),
         ),
       );
-    }).toList();
+    }
+
     return Stack(
       children: textElements,
     );
@@ -486,7 +483,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
   double calculateFontSizeFromWordHeight(
     double wordHeight,
   ) {
-    const scaleFactor = 0.7; // Adjust this as necessary to fit the text nicely
+    const scaleFactor = 0.8; // Adjust this as necessary to fit the text nicely
     // Calculate the font size and clamp it between 8 and 20 pixels
     return math.max(wordHeight * scaleFactor, 8);
   }
