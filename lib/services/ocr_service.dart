@@ -55,4 +55,33 @@ class OcrService {
       };
     }
   }
+
+  List<Map<String, dynamic>> processGoogleOCRData(
+      Map<String, dynamic> googleData) {
+    List<Map<String, dynamic>> processedData = [];
+
+    for (var page in googleData['fullTextAnnotation']['pages']) {
+      for (var block in page['blocks']) {
+        for (var paragraph in block['paragraphs']) {
+          Map<String, dynamic> sentence = {
+            'bounds': {
+              'vertices': paragraph['boundingBox']['vertices'],
+            },
+            'words': paragraph['words'].map((word) {
+              return {
+                'text':
+                    word['symbols'].map((symbol) => symbol['text']).join(''),
+                'bounds': {
+                  'vertices': word['boundingBox']['vertices'],
+                },
+              };
+            }).toList(),
+          };
+          processedData.add(sentence);
+        }
+      }
+    }
+
+    return processedData;
+  }
 }

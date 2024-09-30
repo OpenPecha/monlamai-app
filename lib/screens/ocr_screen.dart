@@ -1,20 +1,20 @@
 import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:monlamai_app/services/file_upload.dart';
 import 'package:monlamai_app/services/ocr_service.dart';
-import 'package:monlamai_app/services/translation_service.dart';
+import 'package:monlamai_app/widgets/each_mark.dart';
+import 'package:monlamai_app/widgets/image_picker.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
-import 'package:monlamai_app/widgets/speaker.dart';
+import 'package:monlamai_app/widgets/ocr_tools.dart';
+import 'package:monlamai_app/widgets/toggle_text.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:share_plus/share_plus.dart';
+import 'dart:math' as math;
 
 class OcrScreen extends ConsumerStatefulWidget {
   const OcrScreen({super.key});
@@ -33,15 +33,20 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
     true,
     false
   ]; // Initial state - original selected
-  List<dynamic> textCoordinates = [];
-  Map<String, dynamic> ocrResult = {};
-  String markText = '';
+  List<Map<String, dynamic>> textCoordinates = [];
+  String captureTexts = '';
+  List<String> translatedTexts = [];
   final FileUpload _fileUpload = FileUpload();
   final OcrService _ocrService = OcrService();
-  final TranslationService _translationService = TranslationService();
 
   int imageWidth = 0;
   int imageHeight = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestCameraPermission();
+  }
 
   void _toggleButton(int index) {
     setState(() {
@@ -51,10 +56,10 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
     });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _requestCameraPermission();
+  void addTranslatedText(String text) {
+    setState(() {
+      translatedTexts.add(text);
+    });
   }
 
   Future<void> _requestCameraPermission() async {
@@ -116,7 +121,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
   }
 
   // Function to pick images from the gallery
-  Future<void> _pickImages() async {
+  Future<void> _pickImage() async {
     final status = await Permission.photos.request();
     if (!status.isGranted) {
       if (!mounted) return;
@@ -193,33 +198,22 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
           developer.log('OCR response: $ocrResponse');
           imageHeight = ocrResponse['height'];
           imageWidth = ocrResponse['width'];
+
+          final fullTexts = ocrResponse['output']['fullTextAnnotation']['text'];
+
           setState(() {
-            textCoordinates = ocrResponse['output'];
+            captureTexts = utf8.decode(fullTexts.codeUnits);
           });
 
-          // get the first text from the list
-          String text = utf8.decode(ocrResponse['output'][0]['text'].codeUnits);
+          final processedData = processGoogleOCRData(ocrResponse['output']);
+
+          setState(() {
+            textCoordinates = processedData;
+          });
+
           String targetLang = ref.watch(targetLanguageProvider);
 
-          developer.log('OCR result: $text, target language: $targetLang');
-
-          // Handle OCR result
-          // send the text to the translation service
-          Map<String, dynamic> translationResponse =
-              await _translationService.translateText(text, targetLang);
-
-          if (translationResponse['success'] == true) {
-            developer.log(
-                "Ocr Translation result: ${translationResponse['translatedText']}");
-            markText = translationResponse['translatedText'];
-          } else {
-            developer.log(
-                "Failed to translate text: ${translationResponse['error']}");
-            if (!mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Failed to translate text')),
-            );
-          }
+          developer.log('target language: $targetLang');
         } else {
           developer
               .log("Failed to fetch text from image: ${ocrResponse['error']}");
@@ -244,6 +238,35 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
     }
   }
 
+  List<Map<String, dynamic>> processGoogleOCRData(
+      Map<String, dynamic> googleData) {
+    List<Map<String, dynamic>> processedData = [];
+
+    for (var page in googleData['fullTextAnnotation']['pages']) {
+      for (var block in page['blocks']) {
+        for (var paragraph in block['paragraphs']) {
+          Map<String, dynamic> sentence = {
+            'bounds': {
+              'vertices': paragraph['boundingBox']['vertices'],
+            },
+            'words': paragraph['words'].map((word) {
+              return {
+                'text':
+                    word['symbols'].map((symbol) => symbol['text']).join(''),
+                'bounds': {
+                  'vertices': word['boundingBox']['vertices'],
+                },
+              };
+            }).toList(),
+          };
+          processedData.add(sentence);
+        }
+      }
+    }
+
+    return processedData;
+  }
+
   void _resetCapture() {
     setState(() {
       _capturedImage = null;
@@ -264,27 +287,9 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
           },
         ),
         title: _capturedImage != null
-            ? ToggleButtons(
+            ? ToggleText(
                 isSelected: _isSelected,
-                onPressed: _toggleButton,
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.black, // Unselected text color
-                selectedColor: Colors.white, // Selected text color
-                fillColor: Colors.black,
-                constraints: const BoxConstraints(
-                  minWidth: 100,
-                  minHeight: 30,
-                ), // Background color when selected
-                children: const [
-                  Text(
-                    'Original',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  Text(
-                    'Translated',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                ],
+                toggleButton: _toggleButton,
               )
             : Container(),
         actions: [
@@ -314,13 +319,8 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
                     SizedBox(
                       child: Stack(
                         children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: FloatingActionButton(
-                              onPressed: _pickImages,
-                              tooltip: "Select image from gallery",
-                              child: const Icon(Icons.photo),
-                            ),
+                          GalleryImagePicker(
+                            pickImage: _pickImage,
                           ),
                           Align(
                             alignment: Alignment.center,
@@ -343,88 +343,13 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
                   ],
                 )
               : Container(),
-          _capturedImage != null && textCoordinates.isNotEmpty
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 0,
-                      ),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(22),
-                          color: Theme.of(context)
-                                  .elevatedButtonTheme
-                                  .style
-                                  ?.backgroundColor
-                                  ?.resolve({WidgetState.pressed}) ??
-                              Colors.transparent),
-                      child: Row(
-                        children: [
-                          SpeakerWidget(
-                            text: _isSelected[1]
-                                ? markText
-                                : utf8.decode(
-                                    textCoordinates.first['text'].codeUnits),
-                            language: _isSelected[1]
-                                ? ref.watch(targetLanguageProvider)
-                                : ref.watch(sourceLanguageProvider),
-                          ),
-                          const Text('Listen'),
-                          const SizedBox(width: 10),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.share),
-                      onPressed: () {
-                        final RenderBox box =
-                            context.findRenderObject() as RenderBox;
-                        Share.share(
-                          _isSelected[1]
-                              ? markText
-                              : utf8.decode(
-                                  textCoordinates.first['text'].codeUnits),
-                          sharePositionOrigin:
-                              box.localToGlobal(Offset.zero) & box.size,
-                        );
-                      },
-                      label: const Text('Share'),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.copy),
-                      onPressed: () {
-                        Clipboard.setData(
-                          ClipboardData(
-                              text: _isSelected[1]
-                                  ? markText
-                                  : utf8.decode(
-                                      textCoordinates.first['text'].codeUnits)),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Text copied')),
-                        );
-                      },
-                      label: const Text('Copy'),
-                      style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
-                  ],
+          _capturedImage != null &&
+                  textCoordinates.isNotEmpty &&
+                  translatedTexts.isNotEmpty
+              ? OcrTools(
+                  captureTexts: captureTexts,
+                  translatedTexts: translatedTexts,
+                  isSelected: _isSelected,
                 )
               : Container(),
         ]),
@@ -459,7 +384,10 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
           return Stack(
             fit: StackFit.loose,
             children: [
-              _buildCapturedImage(),
+              _buildCapturedImage(
+                width: displayWidth,
+                height: displayHeight,
+              ),
               (textCoordinates.isNotEmpty)
                   ? _buildTextOverlay(
                       displayWidth,
@@ -479,61 +407,88 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
     }
   }
 
-  Widget _buildCapturedImage() {
+  Widget _buildCapturedImage({required double width, required double height}) {
     return Image.file(
+      width: width,
+      height: height,
       File(_capturedImage!.path),
       fit: BoxFit.cover,
     );
   }
 
   Widget _buildTextOverlay(double displayWidth, double displayHeight) {
+    final List<Widget> textElements = [];
     debugPrint(
         "Display width: $displayWidth, height: $displayHeight, image width: $imageWidth, height: $imageHeight");
 
-    // Calculate scale factors
-    final double scaleX = (displayWidth / imageWidth).toDouble();
-    final double scaleY = (displayHeight / imageHeight).toDouble();
+    textCoordinates.asMap().entries.map((entry) {
+      int blockIndex = entry.key;
+      dynamic block = entry.value;
 
-    developer.log("Scale X: $scaleX, Scale Y: $scaleY");
+      var xRatio = (displayWidth / imageWidth).toStringAsFixed(2);
+      var yRatio = (displayHeight / imageHeight).toStringAsFixed(2);
 
-    // Get only the first item from the list
-    final coord = textCoordinates.first;
+      double xScale = double.parse(xRatio);
+      double yScale = double.parse(yRatio);
 
-    final List<dynamic> boundingBox = coord['boundingBox']['vertices'];
-    final text = utf8.decode(coord['text'].codeUnits);
-    // Calculate the position and size of the text overlay
-    final left = boundingBox[0]['x'].toDouble() * scaleX;
-    final top = boundingBox[0]['y'].toDouble() * scaleY;
-    final width =
-        (boundingBox[2]['x'] - boundingBox[0]['x']).toDouble() * scaleX;
-    final height =
-        (boundingBox[2]['y'] - boundingBox[0]['y']).toDouble() * scaleY;
+      Map<String, double> blockBounds = getBoundingBox(
+        block['bounds']['vertices'],
+        xScale,
+        yScale,
+      );
+      String combinedText = (block['words'] as List<dynamic>)
+          .map((word) => word['text'].toString())
+          .join(" ");
 
-    return Stack(
-      children: [
+      Map<String, double> firstWordBounds = getBoundingBox(
+        block['words'][0]['bounds']['vertices'],
+        xScale,
+        yScale,
+      );
+      double wordHeight = firstWordBounds['bottom']! - firstWordBounds['top']!;
+      double fontSize = calculateFontSizeFromWordHeight(wordHeight);
+
+      textElements.add(
         Positioned(
-          left: left,
-          top: top,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-            child: Container(
-              width: width,
-              height: height,
-              color: Colors.black.withOpacity(0.5),
-              child: Text(
-                _isSelected[1] ? markText : text,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  backgroundColor: Color.fromRGBO(255, 255, 255, 0.5),
-                ),
-              ),
-            ),
+          left: blockBounds['left']!,
+          top: blockBounds['top']!,
+          child: Container(
+            width: blockBounds['right']! - blockBounds['left']!,
+            height: blockBounds['bottom']! - blockBounds['top']!,
+            color: Colors.black.withOpacity(0.6),
+            child: EachMark(
+                text: combinedText,
+                translatedTexts: translatedTexts,
+                addTranslatedText: addTranslatedText,
+                fontSize: fontSize,
+                isSelected: _isSelected,
+                targetLang: ref.watch(
+                  targetLanguageProvider,
+                )),
           ),
         ),
-      ],
+      );
+    }).toList();
+    return Stack(
+      children: textElements,
     );
+  }
+
+  Map<String, double> getBoundingBox(
+      List<dynamic> vertices, double xScale, double yScale) {
+    double left = vertices[0]['x'] * xScale;
+    double top = vertices[0]['y'] * yScale;
+    double right = vertices[2]['x'] * xScale;
+    double bottom = vertices[2]['y'] * yScale;
+    return {'left': left, 'top': top, 'right': right, 'bottom': bottom};
+  }
+
+  double calculateFontSizeFromWordHeight(
+    double wordHeight,
+  ) {
+    const scaleFactor = 0.7; // Adjust this as necessary to fit the text nicely
+    // Calculate the font size and clamp it between 8 and 20 pixels
+    return math.max(wordHeight * scaleFactor, 8);
   }
 
   @override
