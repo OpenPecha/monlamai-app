@@ -113,10 +113,10 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
       setState(() {
         _capturedImage = photo;
       });
-      developer.log('Picture taken: ${photo.path}');
+      debugPrint('Picture taken: ${photo.path}');
       _sendImage();
     } catch (e) {
-      developer.log('Error taking picture: $e', error: jsonEncode(e));
+      debugPrint('Error taking picture: $e');
     }
   }
 
@@ -172,7 +172,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
         _sendImage();
       }
     } catch (e) {
-      developer.log('Error picking image: $e', error: jsonEncode(e));
+      debugPrint('Error picking image: ${jsonEncode(e)}');
     }
   }
 
@@ -184,7 +184,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
       Map<String, dynamic> uploadResult = await _fileUpload.uploadFile(
         filePath: _capturedImage!.path,
       );
-      developer.log('Upload result: $uploadResult');
+      debugPrint('Upload result: $uploadResult');
 
       if (uploadResult['success'] == true) {
         String imageUrl = uploadResult['file_url'];
@@ -195,7 +195,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
         );
 
         if (ocrResponse['success'] == true) {
-          developer.log('OCR response: $ocrResponse');
+          debugPrint('OCR response: $ocrResponse');
           imageHeight = ocrResponse['height'];
           imageWidth = ocrResponse['width'];
 
@@ -213,7 +213,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
 
           String targetLang = ref.watch(targetLanguageProvider);
 
-          developer.log('target language: $targetLang');
+          debugPrint('target language: $targetLang');
         } else {
           developer
               .log("Failed to fetch text from image: ${ocrResponse['error']}");
@@ -223,14 +223,14 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
           );
         }
       } else {
-        developer.log("Failed to upload image: ${uploadResult['error']}");
+        debugPrint("Failed to upload image: ${uploadResult['error']}");
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to upload image')),
         );
       }
     } catch (e) {
-      developer.log('Error sending image: $e', error: jsonEncode(e));
+      debugPrint('Error sending image: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to send image to upload')),
@@ -436,6 +436,8 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
           .map((word) => word['text'].toString())
           .join(" ");
 
+      String decodedText = utf8.decode(combinedText.codeUnits);
+
       Map<String, double> firstWordBounds = getBoundingBox(
           block['words'][0]['bounds']['vertices'], xScale, yScale);
 
@@ -452,7 +454,7 @@ class _OcrScreenState extends ConsumerState<OcrScreen> {
             color: Colors.black.withOpacity(0.6),
             child: SingleChildScrollView(
               child: EachMark(
-                  text: combinedText,
+                  text: decodedText,
                   translatedTexts: translatedTexts,
                   addTranslatedText: addTranslatedText,
                   fontSize: fontSize,

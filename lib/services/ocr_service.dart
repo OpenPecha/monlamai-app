@@ -1,7 +1,7 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
-import 'dart:developer' as developer;
 
 class OcrService {
   final String _apiUrl =
@@ -29,7 +29,7 @@ class OcrService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        developer.log("Fetched text from image: $data");
+        debugPrint("Fetched text from image: $data");
 
         return {
           "success": true,
@@ -39,8 +39,7 @@ class OcrService {
         };
       } else {
         // Handle HTTP error
-        developer
-            .log("Failed to fetch text from image: ${response.statusCode}");
+        debugPrint("Failed to fetch text from image: ${response.statusCode}");
         return {
           "success": false,
           "error": "Failed to fetch text from image: ${response.statusCode}",
@@ -48,7 +47,7 @@ class OcrService {
       }
     } catch (e) {
       // Handle any other exceptions
-      developer.log("Error fetching text from image: $e");
+      debugPrint("Error fetching text from image: $e");
       return {
         "success": false,
         "error": "Error fetching text from image: $e",
