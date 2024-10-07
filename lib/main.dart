@@ -9,8 +9,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 // with Riverpod scope
 void main() async {
-  await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   final sharedPreferences = await SharedPreferences.getInstance();
   runApp(ProviderScope(
     overrides: [
