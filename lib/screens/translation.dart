@@ -92,25 +92,17 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
               },
               tooltip: "Back",
             ),
-            Text(
-              "Home",
-              style: TextStyle(
-                color: Theme.of(context).appBarTheme.foregroundColor,
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
           ],
         ),
-        leadingWidth: 100,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(
-          horizontal: 4,
-          vertical: 4,
+          horizontal: 16,
+          vertical: 8,
         ),
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TranslationInput(
                 translate: translate,
@@ -120,10 +112,8 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                 targetLang: targetLang,
               ),
               !_isTextEmpty && translatedText.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.star),
-                      color: isFavorite ? Colors.yellow : Colors.grey,
-                      onPressed: () {
+                  ? GestureDetector(
+                      onTap: () {
                         setState(() {
                           isFavorite = !isFavorite;
                         });
@@ -147,12 +137,14 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                           );
                         }
                       },
-                      tooltip: 'Favorite',
+                      child: Icon(
+                        Icons.star,
+                        color: isFavorite ? Colors.yellow[700] : Colors.grey,
+                      ),
                     )
                   : Container(),
             ],
           ),
-          const SizedBox(height: 8.0),
           !_isTextEmpty && translatedText.isNotEmpty
               ? Row(
                   children: [
@@ -175,7 +167,7 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                   ],
                 )
               : Container(),
-          const SizedBox(height: 16.0),
+          const SizedBox(height: 8.0),
           !_isTextEmpty
               ? const Divider(
                   thickness: 1,
@@ -202,10 +194,11 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // translated text
                     Padding(
                       padding: const EdgeInsets.symmetric(
                         vertical: 0,
-                        horizontal: 16,
+                        horizontal: 8,
                       ),
                       child: Text(
                         translatedText,
@@ -216,7 +209,6 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8.0),
                     Row(
                       children: [
                         SpeakerWidget(

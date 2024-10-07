@@ -20,55 +20,49 @@ class TranslationInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 4,
-          vertical: 4,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 0,
-                horizontal: 16,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 0,
+              horizontal: 8,
+            ),
+            child: TextField(
+              minLines: 1,
+              maxLines: 5,
+              autofocus: true,
+              controller: inputController,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.normal,
               ),
-              child: TextField(
-                minLines: 1,
-                maxLines: 5,
-                autofocus: true,
-                controller: inputController,
-                style: const TextStyle(
-                  fontSize: 20,
+              decoration: const InputDecoration(
+                hintText: 'Enter text',
+                border: InputBorder.none,
+                hintStyle: TextStyle(
+                  fontSize: 22,
                   fontWeight: FontWeight.normal,
                 ),
-                decoration: const InputDecoration(
-                  hintText: 'Enter text',
-                  border: InputBorder.none,
-                  hintStyle: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-                textInputAction: TextInputAction.done,
-                onSubmitted: (value) {
-                  if (value.isNotEmpty) {
-                    translate(value, targetLang);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter text to translate'),
-                      ),
-                    );
-                  }
-                },
-                inputFormatters: [
-                  EnterDisablerInputFormatter(isTextEmpty),
-                ],
               ),
+              textInputAction: TextInputAction.done,
+              onSubmitted: (value) {
+                if (value.isNotEmpty) {
+                  translate(value, targetLang);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter text to translate'),
+                    ),
+                  );
+                }
+              },
+              inputFormatters: [
+                EnterDisablerInputFormatter(isTextEmpty),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

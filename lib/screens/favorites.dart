@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/providers/favorite_provider.dart';
 import 'package:monlamai_app/widgets/speaker.dart';
+import 'package:monlamai_app/widgets/translation_card.dart';
 
 class FavoritesScreen extends ConsumerWidget {
   const FavoritesScreen({super.key});
@@ -27,15 +28,6 @@ class FavoritesScreen extends ConsumerWidget {
           "Saved",
           style: Theme.of(context).appBarTheme.titleTextStyle,
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.star),
-            onPressed: () {
-              // do something
-            },
-            tooltip: 'Saved',
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(
@@ -65,12 +57,11 @@ class FavoritesScreen extends ConsumerWidget {
           scrollDirection: Axis.vertical,
           itemCount: favorites.length,
           itemBuilder: (context, index) {
-            return convoCard(
-              context,
-              favorites[index]['text']!,
-              favorites[index]['translatedText']!,
-              favorites[index]['sourceLang']!,
-              favorites[index]['targetLang']!,
+            return TranslationCard(
+              transcribedText: favorites[index]['text']!,
+              translatedText: favorites[index]['translatedText']!,
+              sourceLang: favorites[index]['sourceLang']!,
+              targetLang: favorites[index]['targetLang']!,
             );
           },
           separatorBuilder: (context, index) => const SizedBox(height: 16),
@@ -89,7 +80,7 @@ class FavoritesScreen extends ConsumerWidget {
         horizontal: 16,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

@@ -6,6 +6,7 @@ import 'package:monlamai_app/widgets/audio_recording.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
 import 'package:monlamai_app/widgets/loading_text.dart';
 import 'package:monlamai_app/widgets/speaker.dart';
+import 'package:monlamai_app/widgets/translation_card.dart';
 
 class Conversation {
   Conversation({
@@ -206,11 +207,11 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
           scrollDirection: Axis.vertical,
           itemCount: _conversations.length,
           itemBuilder: (context, index) {
-            return convoCard(
-              _conversations[index]['sourceText']!,
-              _conversations[index]['targetText']!,
-              _conversations[index]['soucreLang']!,
-              _conversations[index]['targetLang']!,
+            return TranslationCard(
+              transcribedText: _conversations[index]['sourceText']!,
+              translatedText: _conversations[index]['targetText']!,
+              sourceLang: _conversations[index]['soucreLang']!,
+              targetLang: _conversations[index]['targetLang']!,
             );
           },
           separatorBuilder: (context, index) => const SizedBox(height: 16),
@@ -226,11 +227,10 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
     final to = targetLang == 'en' ? 'English' : 'Tibetan';
     return Container(
       padding: const EdgeInsets.symmetric(
-        vertical: 8,
-        horizontal: 16,
+        horizontal: 12,
       ),
       decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: Theme.of(context).colorScheme.secondary,
@@ -240,23 +240,15 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 4,
-                ),
-                child: Text(
-                  "$from  ->  $to",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ),
-            ],
+          const SizedBox(height: 8.0),
+          Text(
+            "$from  ->  $to",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey[500],
+            ),
           ),
+          const SizedBox(height: 8.0),
           Text(
             transcribedText,
             style: const TextStyle(
@@ -284,7 +276,6 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16.0),
           const Divider(
             thickness: 1,
             height: 1,
@@ -292,65 +283,52 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
             indent: 20,
             endIndent: 20,
           ),
-          const SizedBox(height: 16.0),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          const SizedBox(height: 8.0),
+          Text(
+            translatedText,
+            softWrap: true,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          Row(
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 0,
-                  horizontal: 10,
-                ),
-                child: Text(
-                  translatedText,
-                  softWrap: true,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
+              SpeakerWidget(
+                text: translatedText,
+                language: targetLang,
               ),
-              const SizedBox(height: 8.0),
-              Row(
-                children: [
-                  SpeakerWidget(
-                    text: translatedText,
-                    language: targetLang,
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      Clipboard.setData(
-                        ClipboardData(text: translatedText),
-                      );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Text copied')),
-                      );
-                    },
-                    icon: const Icon(Icons.copy_outlined),
-                  ),
-                  IconButton(
-                    color: _isLiked
-                        ? Colors.green
-                        : Theme.of(context).colorScheme.secondary,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      // send feedback to the server
-                      setState(() {
-                        _isLiked = !_isLiked;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Thanks for the feedback')),
-                      );
-                    },
-                    icon: const Icon(Icons.thumb_up),
-                  ),
-                ],
+              const Spacer(),
+              IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  Clipboard.setData(
+                    ClipboardData(text: translatedText),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Text copied')),
+                  );
+                },
+                icon: const Icon(Icons.copy_outlined),
+              ),
+              IconButton(
+                color: _isLiked
+                    ? Colors.green
+                    : Theme.of(context).colorScheme.secondary,
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  // send feedback to the server
+                  setState(() {
+                    _isLiked = !_isLiked;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Thanks for the feedback')),
+                  );
+                },
+                icon: const Icon(Icons.thumb_up),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
