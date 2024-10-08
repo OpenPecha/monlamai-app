@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:monlamai_app/db/database_helper.dart';
+import 'package:monlamai_app/models/favorite.dart';
 import 'package:monlamai_app/widgets/audio_recording.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
 import 'package:monlamai_app/widgets/loading_text.dart';
@@ -16,9 +18,12 @@ class TranscribingScreen extends ConsumerStatefulWidget {
 class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
   bool _isRecording = false;
   bool _isLoading = false;
+  String _id = '';
   String _transcribedText = '';
   String _translatedText = '';
   bool _isLiked = false;
+  bool _isFavorite = false;
+  final dbHelper = DatabaseHelper();
 
   void toggleRecording() {
     // Handle recording toggle
@@ -34,10 +39,11 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
     });
   }
 
-  void setTexts(String transcribedText, String translated, String sourceLang,
-      String targetLang) {
+  void setTexts(String id, String transcribedText, String translated,
+      String sourceLang, String targetLang) {
     // Handle transcribed text
     setState(() {
+      _id = id;
       _transcribedText = transcribedText;
       _translatedText = translated;
     });
@@ -46,8 +52,28 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
   // reset both text
   void resetText() {
     setState(() {
+      _id = '';
       _transcribedText = '';
       _translatedText = '';
+    });
+  }
+
+  void toggleFavorite(String sourceLang, String targetLang) async {
+    if (_isFavorite) {
+      await dbHelper.deleteFavorite(_id);
+    } else {
+      Favorite newFavorite = Favorite(
+        id: _id,
+        sourceText: _transcribedText,
+        targetText: _translatedText,
+        sourceLang: sourceLang,
+        targetLang: targetLang,
+        createdAt: DateTime.now(),
+      );
+      await dbHelper.insertFavorite(newFavorite);
+    }
+    setState(() {
+      _isFavorite = !_isFavorite;
     });
   }
 
@@ -104,12 +130,28 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            _transcribedText,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.normal,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                _transcribedText,
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  toggleFavorite(sourceLang, targetLang);
+                                },
+                                icon: Icon(
+                                  Icons.star,
+                                  color: _isFavorite
+                                      ? Colors.amber
+                                      : Colors.grey[300],
+                                ),
+                              ),
+                            ],
                           ),
                           Row(
                             children: [

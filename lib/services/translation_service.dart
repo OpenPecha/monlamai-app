@@ -44,6 +44,7 @@ class TranslationService {
         log("Decoded Translation: $decodedTranslation");
         return {
           "success": true,
+          "id": responseData['id'],
           'translatedText': decodedTranslation,
         };
       } else {

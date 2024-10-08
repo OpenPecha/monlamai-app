@@ -56,7 +56,7 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {
               // navigate to favorites screen
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const FavoritesScreen(),
+                builder: (context) => FavoritesScreen(),
               ));
             },
             tooltip: 'Favorite',

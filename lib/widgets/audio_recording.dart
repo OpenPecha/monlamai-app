@@ -230,10 +230,11 @@ class _AudioRecordingWidgetState extends ConsumerState<AudioRecordingWidget> {
 
           if (translationResult['success'] == true) {
             log("Translated text: ${translationResult['translatedText']}");
+            String id = translationResult['id'];
             String translatedText = translationResult['translatedText'];
 
-            widget.setTexts(transcribedText, translatedText, widget.langFrom,
-                widget.langTo);
+            widget.setTexts(id, transcribedText, translatedText,
+                widget.langFrom, widget.langTo);
             widget.toggleLoading(false);
           } else {
             log("Error translating text: ${translationResult['error']}");

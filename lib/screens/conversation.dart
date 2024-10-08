@@ -49,6 +49,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
   }
 
   void setTexts(
+    String id,
     String sourceText,
     String targetText,
     String sourceLang,
@@ -57,6 +58,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
     // Handle transcribed text
     setState(() {
       _conversations.add({
+        "id": id,
         "sourceText": sourceText,
         "soucreLang": sourceLang,
         "targetText": targetText,
@@ -208,6 +210,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
           itemCount: _conversations.length,
           itemBuilder: (context, index) {
             return TranslationCard(
+              id: _conversations[index]['id']!,
               transcribedText: _conversations[index]['sourceText']!,
               translatedText: _conversations[index]['targetText']!,
               sourceLang: _conversations[index]['soucreLang']!,

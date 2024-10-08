@@ -2,7 +2,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:monlamai_app/providers/favorite_provider.dart';
+import 'package:monlamai_app/db/database_helper.dart';
+import 'package:monlamai_app/models/favorite.dart';
 import 'package:monlamai_app/screens/home.dart';
 import 'package:monlamai_app/services/translation_service.dart';
 import 'package:monlamai_app/widgets/language_toggle.dart';
@@ -24,6 +25,8 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
   bool isLoading = false;
   bool isFavorite = false;
   bool _isLiked = false;
+  String id = '';
+  final dbHelper = DatabaseHelper();
 
   @override
   void initState() {
@@ -56,6 +59,7 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
           await _translationService.translateText(inputText, targetLanguage);
       setState(() {
         translatedText = translationResult['translatedText'];
+        id = translationResult['id'];
       });
     } catch (error) {
       // Handle error
@@ -71,6 +75,25 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
         isLoading = false;
       });
     }
+  }
+
+  void toggleFavorite(String sourceLang, String targetLang) {
+    if (isFavorite) {
+      dbHelper.deleteFavorite(id);
+    } else {
+      Favorite newFavorite = Favorite(
+        id: id,
+        sourceText: _inputController.text,
+        targetText: translatedText,
+        sourceLang: sourceLang,
+        targetLang: targetLang,
+        createdAt: DateTime.now(),
+      );
+      dbHelper.insertFavorite(newFavorite);
+    }
+    setState(() {
+      isFavorite = !isFavorite;
+    });
   }
 
   @override
@@ -114,28 +137,7 @@ class _TransaltionScreenState extends ConsumerState<TransaltionScreen> {
               !_isTextEmpty && translatedText.isNotEmpty
                   ? GestureDetector(
                       onTap: () {
-                        setState(() {
-                          isFavorite = !isFavorite;
-                        });
-                        if (isFavorite) {
-                          ref.read(favoriteProvider.notifier).addFavorite(
-                            {
-                              'text': _inputController.text,
-                              'translatedText': translatedText,
-                              'sourceLang': sourceLang,
-                              'targetLang': targetLang,
-                            },
-                          );
-                        } else {
-                          ref.read(favoriteProvider.notifier).removeFavorite(
-                            {
-                              'text': _inputController.text,
-                              'translatedText': translatedText,
-                              'sourceLang': sourceLang,
-                              'targetLang': targetLang,
-                            },
-                          );
-                        }
+                        toggleFavorite(sourceLang, targetLang);
                       },
                       child: Icon(
                         Icons.star,

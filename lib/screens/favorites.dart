@@ -1,16 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:monlamai_app/providers/favorite_provider.dart';
+import 'package:monlamai_app/db/database_helper.dart';
+import 'package:monlamai_app/models/favorite.dart';
 import 'package:monlamai_app/widgets/speaker.dart';
 import 'package:monlamai_app/widgets/translation_card.dart';
 
-class FavoritesScreen extends ConsumerWidget {
+class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
+  @override
+  ConsumerState<FavoritesScreen> createState() => _FavoritesScreenState();
+}
+
+class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
+  final dbHelper = DatabaseHelper();
+  List<Favorite> favorites = [];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final favorites = ref.watch(favoriteProvider);
+  void initState() {
+    super.initState();
+    _loadFavorites();
+  }
+
+  _loadFavorites() async {
+    List<Favorite> loadedFavorites = await dbHelper.getFavorites();
+    setState(() {
+      favorites = loadedFavorites;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // final favorites = ref.watch(favoriteProvider);
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
@@ -30,22 +51,26 @@ class FavoritesScreen extends ConsumerWidget {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            favorites.isEmpty
-                ? const Center(
-                    child: Text("Star a translation to see it here"),
-                  )
-                : const SizedBox(),
-            favorites.isNotEmpty ? _favoriteList(favorites) : const SizedBox(),
-          ],
-        ),
-      ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              favorites.isEmpty
+                  ? const Center(
+                      child: Text(
+                        "No saved translations",
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    )
+                  : _favoriteList(favorites),
+            ],
+          )),
     );
   }
 
@@ -57,11 +82,14 @@ class FavoritesScreen extends ConsumerWidget {
           scrollDirection: Axis.vertical,
           itemCount: favorites.length,
           itemBuilder: (context, index) {
+            final favorite = favorites[index];
             return TranslationCard(
-              transcribedText: favorites[index]['text']!,
-              translatedText: favorites[index]['translatedText']!,
-              sourceLang: favorites[index]['sourceLang']!,
-              targetLang: favorites[index]['targetLang']!,
+              id: favorite.id,
+              transcribedText: favorite.sourceText,
+              translatedText: favorite.targetText,
+              sourceLang: favorite.sourceLang,
+              targetLang: favorite.targetLang,
+              onDeleted: _loadFavorites,
             );
           },
           separatorBuilder: (context, index) => const SizedBox(height: 16),
@@ -185,87 +213,3 @@ class FavoritesScreen extends ConsumerWidget {
     );
   }
 }
-
-
-
-
-// ListView.builder(
-//         itemCount: 1, // Replace with actual number of history items
-//         itemBuilder: (context, index) {
-//           return Card(
-//             elevation: 1,
-//             margin: const EdgeInsets.symmetric(
-//               horizontal: 16,
-//               vertical: 8,
-//             ),
-//             shape: RoundedRectangleBorder(
-//               borderRadius: BorderRadius.circular(14),
-//             ),
-//             child: Padding(
-//               padding: const EdgeInsets.fromLTRB(14, 16, 14, 0),
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   const Row(
-//                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                     children: [
-//                       Text(
-//                         'ENGLISH → TIBETAN',
-//                         style: TextStyle(
-//                           color: Color.fromRGBO(0, 0, 0, 0.5),
-//                           fontSize: 10,
-//                         ),
-//                       ),
-//                       Icon(Icons.star, color: Color(0xFFC4AC69)),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 4),
-//                   const Text(
-//                     'I am fine , Thank you',
-//                     style: TextStyle(fontSize: 18),
-//                   ),
-//                   Row(
-//                     children: [
-//                       IconButton(
-//                         icon: const Icon(Icons.volume_up, color: Colors.grey),
-//                         onPressed: () {/* Handle audio playback */},
-//                       ),
-//                       const Spacer(),
-//                       IconButton(
-//                         icon: const Icon(Icons.copy, color: Colors.grey),
-//                         onPressed: () {/* Handle copy */},
-//                       ),
-//                       IconButton(
-//                         icon: const Icon(Icons.thumb_up, color: Colors.grey),
-//                         onPressed: () {/* Handle like */},
-//                       ),
-//                     ],
-//                   ),
-//                   const Divider(),
-//                   const Text(
-//                     'ང་བདེ་པོ་ཡིན། ཐུགས་རྗེ་ཆེ།',
-//                     style: TextStyle(fontSize: 18),
-//                   ),
-//                   Row(
-//                     children: [
-//                       IconButton(
-//                         icon: const Icon(Icons.volume_up, color: Colors.grey),
-//                         onPressed: () {/* Handle audio playback */},
-//                       ),
-//                       const Spacer(),
-//                       IconButton(
-//                         icon: const Icon(Icons.copy, color: Colors.grey),
-//                         onPressed: () {/* Handle copy */},
-//                       ),
-//                       IconButton(
-//                         icon: const Icon(Icons.thumb_up, color: Colors.grey),
-//                         onPressed: () {/* Handle like */},
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           );
-//         },
-//       ),
