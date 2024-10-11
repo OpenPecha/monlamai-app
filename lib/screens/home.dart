@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(
-                  "assets/images/icon-circular.png",
+                  "assets/images/monlam-logo.png",
                   width: 37,
                   height: 34,
                 ),

@@ -29,6 +29,7 @@ if (flutterVersionName == null) {
 }
 
 android {
+    namespace 'ai.monlam.monlamtranslate'
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
 
@@ -47,13 +48,18 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "ai.monlam.monlamai_app"
+        applicationId "ai.monlam.monlamtranslate"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 23
         targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        manifestPlaceholders += [
+            auth0Domain: "dev-56nxmlhj0amjwa88.us.auth0.com",
+            auth0Scheme: "monlamtranslate",
+        ]
+ 
     }
 
      signingConfigs {
@@ -72,7 +78,6 @@ android {
             signingConfig signingConfigs.release
         }
     }
-    namespace 'ai.monlam.monlamai_app'
 }
 
 flutter {

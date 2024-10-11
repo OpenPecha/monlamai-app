@@ -1,8 +1,13 @@
+import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:monlamai_app/auth/auth_service.dart';
 import 'package:monlamai_app/providers/shared_preferences_provider.dart';
 import 'package:monlamai_app/providers/theme_provider.dart';
 import 'package:monlamai_app/screens/home.dart';
+import 'package:monlamai_app/screens/login.dart';
+import 'package:monlamai_app/screens/profile.dart';
+import 'package:monlamai_app/screens/questions/questionnaire_steps.dart';
 import 'package:monlamai_app/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,9 +35,48 @@ class MyApp extends ConsumerWidget {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     return MaterialApp(
-      title: 'Monlam AI App',
-      theme: isDarkMode ? darkMode : lightMode,
-      home: const HomeScreen(),
-    );
+        title: 'Monlam AI',
+        theme: isDarkMode ? darkMode : lightMode,
+        home: const HomeScreen()
+        // home: const UserProfileForm(
+        //   user: {
+        //     'username': 'John Doe',
+        //     'gender': 'Male',
+        //     'city': '',
+        //     'country': '',
+        //     'birth_date': '',
+        //     'profession': 'Technology & IT',
+        //     'interest': 'Art & Craft,Culture',
+        //   },
+        // ),
+        );
+  }
+}
+
+class Root extends StatefulWidget {
+  const Root({super.key});
+
+  @override
+  State<Root> createState() => _RootState();
+}
+
+class _RootState extends State<Root> {
+  UserProfile? profile;
+  final AuthService authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    initAuth();
+  }
+
+  void initAuth() async {
+    await authService.init();
+    setState(() => profile = authService.profile);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return profile != null ? const HomeScreen() : const LoginScreen();
   }
 }

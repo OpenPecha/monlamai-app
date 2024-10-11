@@ -1,4 +1,4 @@
-package ai.monlam.monlamai_app
+package ai.monlam.monlamtranslate
 
 import io.flutter.embedding.android.FlutterActivity
 
