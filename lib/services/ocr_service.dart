@@ -2,16 +2,20 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:monlamai_app/services/user_session.dart';
 
 class OcrService {
   final String _apiUrl =
       dotenv.env["OCR_API_URL"].toString(); // Replace with your API endpoint
   final String _apiKey = dotenv.env["API_AUTH_TOKEN"]
       .toString(); // If your API requires authentication
+  UserSession userSession = UserSession();
 
   Future<Map<String, dynamic>> fetchTextFromImage({
     required String imageUrl,
   }) async {
+    final user = await userSession.getUser();
+    final idToken = user!.idToken;
     final url = Uri.parse(_apiUrl);
     final body = jsonEncode({
       'input': imageUrl,
@@ -22,7 +26,8 @@ class OcrService {
         url,
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": "Bearer $_apiKey"
+          "Authorization": "Bearer $_apiKey",
+          "Cookie": "id_token=$idToken",
         },
         body: body,
       );

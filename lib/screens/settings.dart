@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:monlamai_app/providers/theme_provider.dart';
+import 'package:monlamai_app/screens/favorites.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -10,9 +11,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
-  String _selectedLanguage = 'English';
-  final MenuController _menuController = MenuController();
-
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
@@ -38,6 +36,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // container to navigate to favorites screen
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20,
+              vertical: 12,
+            ),
+            decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor,
+              border: Border(
+                bottom: BorderSide(
+                  color: Colors.grey.shade300,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            width: double.infinity,
+            height: 50,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const FavoritesScreen(),
+                  ),
+                );
+              },
+              child: const Text(
+                'Favorites',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            ),
+          ),
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: 20,
@@ -69,75 +101,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ref.read(isDarkModeProvider.notifier).toggle();
                   },
                   activeColor: Theme.of(context).colorScheme.secondary,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-              vertical: 8,
-            ),
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey.shade300,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            width: double.infinity,
-            height: 50,
-            child: Row(
-              children: [
-                MenuAnchor(
-                  controller: _menuController,
-                  alignmentOffset: const Offset(6, 10),
-                  menuChildren: ["English", "Tibetan"]
-                      .map((lang) => SizedBox(
-                            width: double.infinity,
-                            child: MenuItemButton(
-                              style: ButtonStyle(
-                                textStyle: WidgetStateProperty.all(
-                                  const TextStyle(fontSize: 16),
-                                ),
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  _selectedLanguage = lang;
-                                });
-                                _menuController.close();
-                              },
-                              child: Align(
-                                alignment: Alignment.center,
-                                child: Text(lang),
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                  builder: (BuildContext context, MenuController controller,
-                      Widget? child) {
-                    return TextButton.icon(
-                      label: Text(
-                        _selectedLanguage,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: Theme.of(context).colorScheme.secondary,
-                        ),
-                      ),
-                      icon: const Icon(Icons.language),
-                      iconAlignment: IconAlignment.end,
-                      onPressed: () {
-                        if (controller.isOpen) {
-                          controller.close();
-                        } else {
-                          controller.open();
-                        }
-                      },
-                    );
-                  },
                 ),
               ],
             ),

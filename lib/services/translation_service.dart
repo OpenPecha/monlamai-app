@@ -2,17 +2,22 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:monlamai_app/services/user_session.dart';
 
 class TranslationService {
   final String _apiUrl = dotenv.env["TRANSLATION_API_URL"]
       .toString(); // Replace with your API endpoint
   final String _apiKey = dotenv.env["API_AUTH_TOKEN"]
       .toString(); // If your API requires authentication
+  UserSession userSession = UserSession();
 
   Future<Map<String, dynamic>> translateText(
     String inputText,
     String targetLanguage,
   ) async {
+    final user = await userSession.getUser();
+    final idToken = user!.idToken;
+
     final url = Uri.parse(_apiUrl);
     final body = jsonEncode({
       'input': inputText,
@@ -26,6 +31,7 @@ class TranslationService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $_apiKey', // If required
+          'Cookie': 'id_token=$idToken',
         },
         body: body,
       );

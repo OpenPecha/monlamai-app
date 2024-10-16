@@ -1,24 +1,29 @@
+import 'package:flutter/material.dart';
+import 'package:monlamai_app/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class UserSession {
-  Future<void> setUser(Map<String, dynamic> user) async {
+  Future<void> setUser(User user) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user', jsonEncode(user));
+    var userStored = await prefs.setString('user', user.toJson());
+    debugPrint('User Stored: $userStored and ${user.toJson()}');
   }
 
-  Future<Map<String, dynamic>?> getUser() async {
+  Future<User?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
-    final userString = prefs.getString('user');
-    if (userString != null) {
-      return jsonDecode(userString) as Map<String, dynamic>;
+    final userJson = prefs.getString('user');
+    if (userJson != null) {
+      final userDataMap = jsonDecode(userJson) as Map<String, dynamic>;
+      return User.fromJson(userDataMap);
     }
     return null;
   }
 
   Future<void> clearUser() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('user');
+    bool isRemoved = await prefs.remove('user');
+    debugPrint('User Removed: $isRemoved');
   }
 
   // New methods for skip question functionality

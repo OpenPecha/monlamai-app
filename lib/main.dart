@@ -6,8 +6,6 @@ import 'package:monlamai_app/providers/shared_preferences_provider.dart';
 import 'package:monlamai_app/providers/theme_provider.dart';
 import 'package:monlamai_app/screens/home.dart';
 import 'package:monlamai_app/screens/login.dart';
-import 'package:monlamai_app/screens/profile.dart';
-import 'package:monlamai_app/screens/questions/questionnaire_steps.dart';
 import 'package:monlamai_app/theme/theme.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,41 +25,28 @@ void main() async {
 
 class MyApp extends ConsumerWidget {
   const MyApp({super.key});
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final currentTheme = ref.watch(themeProvider);
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     return MaterialApp(
-        title: 'Monlam AI',
-        theme: isDarkMode ? darkMode : lightMode,
-        home: const HomeScreen()
-        // home: const UserProfileForm(
-        //   user: {
-        //     'username': 'John Doe',
-        //     'gender': 'Male',
-        //     'city': '',
-        //     'country': '',
-        //     'birth_date': '',
-        //     'profession': 'Technology & IT',
-        //     'interest': 'Art & Craft,Culture',
-        //   },
-        // ),
-        );
+      title: 'Monlam AI',
+      theme: isDarkMode ? darkMode : lightMode,
+      home: Root(),
+    );
   }
 }
 
 class Root extends StatefulWidget {
   const Root({super.key});
-
   @override
   State<Root> createState() => _RootState();
 }
 
 class _RootState extends State<Root> {
   UserProfile? profile;
+  bool isLoading = true;
   final AuthService authService = AuthService();
 
   @override
@@ -71,12 +56,29 @@ class _RootState extends State<Root> {
   }
 
   void initAuth() async {
-    await authService.init();
-    setState(() => profile = authService.profile);
+    try {
+      final userProfile = await authService.init();
+      setState(() {
+        profile = userProfile;
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint('Error during authentication: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return profile != null ? const HomeScreen() : const LoginScreen();
+    if (isLoading) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+    return profile != null ? HomeScreen() : LoginScreen();
   }
 }

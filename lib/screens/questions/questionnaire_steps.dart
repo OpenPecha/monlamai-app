@@ -63,16 +63,24 @@ class _QuestionnaireStepsState extends State<QuestionnaireSteps> {
     }
   }
 
-  void handleSubmit() {
-    print('Submitting form data: $formData');
+  void handleSubmit() async {
     // save form data to database
-    userService.saveUserData(formData);
-    // navigate to home screen
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => HomeScreen(),
-      ),
-    );
+    final result = await userService.saveUserData(formData);
+    if (result['success'] != null) {
+      // navigate to home screen
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(),
+        ),
+      );
+    } else {
+      debugPrint('Error saving user data: ${result['error']}');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Unable saving user data. Please try again.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -109,8 +117,6 @@ class _QuestionnaireStepsState extends State<QuestionnaireSteps> {
           ),
           const SizedBox(height: 60),
           Expanded(child: buildCurrentStep()),
-          // dispay that formData is being updated
-          Text('FormData: $formData'),
           Padding(
             padding: const EdgeInsets.only(
               bottom: 80.0,

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:monlamai_app/models/user.dart';
+import 'package:monlamai_app/services/user_service.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class UserProfileForm extends StatefulWidget {
-  final Map<String, dynamic> user;
+  final User user;
 
   const UserProfileForm({required this.user, super.key});
 
@@ -19,8 +21,10 @@ class _UserProfileFormState extends State<UserProfileForm> {
   List<String> _areaOfInterest = [];
   String? _profession;
   int _completedValue = 0;
+  final UserService _userService = UserService();
 
   final List<String> _requiredFields = [
+    'name',
     'gender',
     'interest',
     'profession',
@@ -30,13 +34,23 @@ class _UserProfileFormState extends State<UserProfileForm> {
   ];
 
   final List<String> _areaOfInterestOptions = [
-    "Art & Craft",
-    "Culture",
-    "Buddhism & Philosophy",
-    "Community Development",
-    "Cuisine",
-    "Education & Knowledge Systems",
-    "History & Heritage",
+    "Arts & Culture",
+    "Tibetan Culture & Society",
+    "Literature & Writing",
+    "Geopolitics & International Conflict",
+    "Science & Technology",
+    "Health & Wellness",
+    "Hobbies and Lifestyle",
+    "Sports & Entertainment",
+    "Education",
+    "Business & Economics",
+    "Social Impact & Community Development",
+    "Environmental & Sustainability",
+    "Travel & Adventure",
+    "Creativity & Innovation",
+    "Politics & Society",
+    "Technology & Digital Media",
+    "Spirituality & Philosophy"
   ];
 
   final List<String> _professions = [
@@ -63,28 +77,48 @@ class _UserProfileFormState extends State<UserProfileForm> {
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController(text: widget.user['username']);
-    _cityController = TextEditingController(text: widget.user['city']);
-    _countryController = TextEditingController(text: widget.user['country']);
-    _dateOfBirth = widget.user['birth_date'].isNotEmpty
-        ? DateTime.parse(widget.user['birth_date'])
+    _nameController = TextEditingController(text: widget.user.name);
+    _cityController = TextEditingController(text: widget.user.city);
+    _countryController = TextEditingController(text: widget.user.country);
+    _dateOfBirth = widget.user.birthdate != null
+        ? DateTime.parse(widget.user.birthdate!)
         : DateTime.now();
-    _gender = widget.user['gender'];
-    _areaOfInterest = (widget.user['interest'] as String?)
+    _gender = widget.user.gender;
+    _areaOfInterest = (widget.user.areaOfInterest)
             ?.split(',')
             .map((e) => e.replaceAll(RegExp(r'\\?"'), ''))
             .toList() ??
         [];
-    _profession = widget.user['profession'];
+    _profession = widget.user.profession ?? "";
     _completedValue = _calculateCompletionPercentage();
+  }
+
+  dynamic _getUserFieldValue(String field) {
+    switch (field) {
+      case 'name':
+        return widget.user.name;
+      case 'gender':
+        return widget.user.gender;
+      case 'profession':
+        return widget.user.profession;
+      case 'birth_date':
+        return widget.user.birthdate;
+      case 'city':
+        return widget.user.city;
+      case 'country':
+        return widget.user.country;
+      case 'interest':
+        return widget.user.areaOfInterest;
+      default:
+        return null;
+    }
   }
 
   int _calculateCompletionPercentage() {
     int filledFields = 0;
 
     for (String field in _requiredFields) {
-      if (widget.user[field] != null &&
-          widget.user[field].toString().isNotEmpty) {
+      if (_getUserFieldValue(field) != null) {
         filledFields++;
       }
     }
@@ -108,7 +142,7 @@ class _UserProfileFormState extends State<UserProfileForm> {
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('User Profile'),
+        title: Text('Profile'),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -142,15 +176,13 @@ class _UserProfileFormState extends State<UserProfileForm> {
               ),
             ),
             SizedBox(height: 24),
-            // display all the user data
-            Text("User Data ${widget.user.toString()}"),
             _buildInputField(
               'Name',
               _nameController,
               (value) {
-                // setState(() {
-                //   widget.user['username'] = value;
-                // });
+                setState(() {
+                  _nameController.text = value;
+                });
               },
               AutofillHints.name,
             ),
@@ -214,7 +246,8 @@ class _UserProfileFormState extends State<UserProfileForm> {
               ),
             ),
             DropdownButtonFormField<String>(
-              value: _profession,
+              value: _professions.contains(_profession) ? _profession : null,
+              hint: Text('Select your profession'),
               onChanged: (value) {
                 setState(() {
                   _profession = value;
@@ -280,9 +313,9 @@ class _UserProfileFormState extends State<UserProfileForm> {
               'City',
               _cityController,
               (value) {
-                // setState(() {
-                //   widget.user['city'] = value;
-                // });
+                setState(() {
+                  _cityController.text = value;
+                });
               },
               AutofillHints.addressCity,
             ),
@@ -291,19 +324,19 @@ class _UserProfileFormState extends State<UserProfileForm> {
               'Country',
               _countryController,
               (value) {
-                // setState(() {
-                //   widget.user['country'] = value;
-                // });
+                setState(() {
+                  _countryController.text = value;
+                });
               },
               AutofillHints.countryName,
             ),
             SizedBox(height: 24),
             ElevatedButton(
               onPressed: _submitForm,
-              child: Text('Submit'),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 50),
               ),
+              child: Text('Proceed'),
             ),
           ],
         ),
@@ -343,9 +376,44 @@ class _UserProfileFormState extends State<UserProfileForm> {
     );
   }
 
-  void _submitForm() {
-    // TODO: Implement form submission logic
-    print('Form submitted with data:');
-    // You would typically send this data to your backend or state management solution
+  _submitForm() async {
+    if (_nameController.text == widget.user.name &&
+            _cityController.text.isEmpty ||
+        _cityController.text == widget.user.city &&
+            _countryController.text.isEmpty ||
+        _countryController.text == widget.user.country &&
+            _dateOfBirth.toIso8601String().split('T').first ==
+                widget.user.birthdate &&
+            _gender == widget.user.gender &&
+            _areaOfInterest.join(',') == widget.user.areaOfInterest &&
+            _profession == widget.user.profession) {
+      return null;
+    } else {
+      // send api request to update user profile
+      var response = await _userService.saveUserData({
+        'name': _nameController.text,
+        'gender': _gender,
+        'city': _cityController.text,
+        'country': _countryController.text,
+        'dob': _dateOfBirth.toIso8601String().split('T').first,
+        'areaOfInterest': _areaOfInterest,
+        'profession': _profession
+      });
+      if (response['error'] != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['error']),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['success']),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
   }
 }

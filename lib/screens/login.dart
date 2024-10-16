@@ -1,7 +1,8 @@
-import 'package:auth0_flutter/auth0_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:monlamai_app/auth/auth_service.dart';
+import 'package:monlamai_app/screens/home.dart';
 import 'package:monlamai_app/screens/questions/questionnaire_steps.dart';
+import 'package:monlamai_app/services/user_session.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +13,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final AuthService authService = AuthService();
+  UserSession userSession = UserSession();
 
   @override
   Widget build(BuildContext context) {
@@ -52,9 +54,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     maxWidth: 280, // Maximum width for the button
                   ),
                   child: ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
                       // Implement Google login
-                      _login(context);
+                      final result = await authService.loginWithGoogle();
+                      handleNavigate(result);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -85,8 +88,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     maxWidth: 280, // Maximum width for the button
                   ),
                   child: ElevatedButton(
-                    onPressed: () {
-                      _login(context);
+                    onPressed: () async {
+                      // Implement Facebook login
+                      final user = await authService.loginWithFacebook();
+                      handleNavigate(user);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
@@ -151,18 +156,27 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login(BuildContext context) async {
-    final user = await authService.login();
-    if (user != null) {
-      print("User logged in: $user");
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => QuestionnaireSteps(),
-        ),
-      );
+  void handleNavigate(result) async {
+    final isSkipped = await userSession.getSkipQuestion();
+    if (result.isSuccess) {
+      if (isSkipped) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(),
+          ),
+        );
+      } else {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => QuestionnaireSteps(),
+          ),
+        );
+      }
     } else {
+      String message = result.error['message'];
+      if (message == 'USER_CANCELLED') return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed')),
+        SnackBar(content: Text('Error: $message')),
       );
     }
   }

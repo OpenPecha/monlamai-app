@@ -2,18 +2,23 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:monlamai_app/services/user_session.dart';
 
 class SttService {
   final String _apiUrl =
       dotenv.env["STT_API_URL"].toString(); // Replace with your API endpoint
   final String _apiKey = dotenv.env["API_AUTH_TOKEN"]
       .toString(); // If your API requires authentication
+  UserSession userSession = UserSession();
 
   // Fetch text from audio file
   Future<Map<String, dynamic>> fetchTextFromAudio({
     required String audioUrl,
     required String language,
   }) async {
+    final user = await userSession.getUser();
+    final idToken = user!.idToken;
+
     final url = Uri.parse(_apiUrl);
     final body = jsonEncode({
       'input': audioUrl,
@@ -27,7 +32,8 @@ class SttService {
         url,
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": "Bearer $_apiKey"
+          "Authorization": "Bearer $_apiKey",
+          // "Cookie": "id_token=$idToken",
         },
         body: body,
       );
