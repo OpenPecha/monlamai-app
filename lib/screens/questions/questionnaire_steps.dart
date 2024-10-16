@@ -67,6 +67,7 @@ class _QuestionnaireStepsState extends State<QuestionnaireSteps> {
     // save form data to database
     final result = await userService.saveUserData(formData);
     if (result['success'] != null) {
+      await userSession.setSkipQuestion(false);
       // navigate to home screen
       Navigator.of(context).push(
         MaterialPageRoute(

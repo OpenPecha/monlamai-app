@@ -60,8 +60,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       handleNavigate(result);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      foregroundColor: Theme.of(context).colorScheme.secondary,
                       padding:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -81,39 +81,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: 16),
-                // Facebook login button
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: 240, // Minimum width for the button
-                    maxWidth: 280, // Maximum width for the button
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Implement Facebook login
-                      final user = await authService.loginWithFacebook();
-                      handleNavigate(user);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: Colors.black,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        side: BorderSide(color: Colors.grey.shade300),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset('assets/images/fb-logo.png', height: 24),
-                        SizedBox(width: 8),
-                        Text('LOG IN WITH FACEBOOK'),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
                 // Trouble logging in link
                 TextButton(
                   onPressed: () {
@@ -122,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Text(
                     'Trouble logging in?',
                     style: TextStyle(
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.secondary,
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -134,7 +101,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
-                      style: TextStyle(color: Colors.black, fontSize: 12),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 12),
                       children: [
                         TextSpan(text: 'By clicking Log In, you agree to our '),
                         TextSpan(
@@ -143,7 +112,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         TextSpan(
                             text:
-                                '.\nLearn how we process your data in our Organisation\nby contacting us on hello@monlam.ai'),
+                                '.\nLearn how we process your data in our Organisation\nby contacting us on '),
+                        TextSpan(
+                          text: 'tech@monlam.ai',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ],
                     ),
                   ),
@@ -159,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void handleNavigate(result) async {
     final isSkipped = await userSession.getSkipQuestion();
     if (result.isSuccess) {
-      if (isSkipped) {
+      if (!isSkipped) {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => HomeScreen(),
