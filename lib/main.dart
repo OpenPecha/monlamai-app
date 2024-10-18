@@ -32,6 +32,7 @@ class MyApp extends ConsumerWidget {
 
     return MaterialApp(
       title: 'Monlam AI',
+      debugShowCheckedModeBanner: false,
       theme: isDarkMode ? darkMode : lightMode,
       home: Root(),
     );

@@ -31,7 +31,7 @@ class TranslationService {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $_apiKey', // If required
-          'Cookie': 'id_token=$idToken',
+          // 'Cookie': 'id_token=$idToken',
         },
         body: body,
       );
@@ -55,7 +55,7 @@ class TranslationService {
         };
       } else {
         // Handle unsuccessful response
-        log('Failed to translate text. Status Code: ${response.statusCode}');
+        log('Failed to translate text. Status Code: ${jsonDecode(response.body)} ${response.statusCode}');
         return {
           "success": false,
           "error":

@@ -27,7 +27,7 @@ class OcrService {
         headers: {
           'Content-Type': 'application/json',
           "Authorization": "Bearer $_apiKey",
-          "Cookie": "id_token=$idToken",
+          // "Cookie": "id_token=$idToken",
         },
         body: body,
       );

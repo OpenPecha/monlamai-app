@@ -36,7 +36,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final persistUser = await userSession.getUser();
     final email = persistUser!.email;
     final user = await userService.getUserDetails(email!);
-    debugPrint('User id token stored in shared ::: ${user["idToken"]}');
 
     setState(() {
       userData = user['user'] as User;

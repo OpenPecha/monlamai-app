@@ -25,8 +25,6 @@ class SttService {
       'lang': language,
     });
 
-    log("apiUrl: $_apiUrl, apiKey: $_apiKey, body: $body");
-
     try {
       final response = await http.post(
         url,
@@ -49,7 +47,7 @@ class SttService {
         };
       } else {
         // Handle HTTP error
-        log("Failed to fetch text from audio: ${response.statusCode}");
+        log("Failed to fetch text from audio: ${jsonDecode(response.body)}  ${response.statusCode}");
         return {
           "success": false,
           "error": "Failed to fetch text from audio: ${response.statusCode}",

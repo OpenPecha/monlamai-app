@@ -132,19 +132,23 @@ class _TranscribingScreenState extends ConsumerState<TranscribingScreen> {
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                _transcribedText,
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.normal,
+                              Expanded(
+                                child: Text(
+                                  _transcribedText,
+                                  softWrap: true,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.normal,
+                                  ),
                                 ),
                               ),
-                              IconButton(
-                                onPressed: () {
+                              GestureDetector(
+                                onTap: () {
                                   toggleFavorite(sourceLang, targetLang);
                                 },
-                                icon: Icon(
+                                child: Icon(
                                   Icons.star,
                                   color: _isFavorite
                                       ? Colors.amber

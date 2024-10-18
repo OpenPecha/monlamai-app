@@ -121,7 +121,12 @@ class _ButtonWrapperState extends State<ButtonWrapper> {
                       },
                       child: Align(
                         alignment: Alignment.center,
-                        child: Text(lang.name),
+                        child: Text(
+                          lang.name,
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
                     ),
                   ),
