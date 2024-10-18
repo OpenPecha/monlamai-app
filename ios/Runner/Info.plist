@@ -29,7 +29,7 @@
 			<string>auth0</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>monlamtranslate</string>
+				<string>ai.monlam.monlamtranslate</string>
 			</array>
 		</dict>
 	</array>

@@ -91,6 +91,7 @@ flutter:
     - assets/images/logo512web.png
     - assets/images/google-logo.png
     - assets/images/fb-logo.png
+    - assets/images/apple-logo.png
     - .env
   #   - images/a_dot_ham.jpeg
 

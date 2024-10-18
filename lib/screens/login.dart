@@ -81,6 +81,38 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: 16),
+                // Apple login button
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: 240, // Minimum width for the button
+                    maxWidth: 280, // Maximum width for the button
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      // Implement Apple login
+                      final result = await authService.loginWithApple();
+                      handleNavigate(result);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      foregroundColor: Theme.of(context).colorScheme.secondary,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        side: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset('assets/images/apple-logo.png', height: 24),
+                        SizedBox(width: 8),
+                        Text('LOG IN WITH APPLE'),
+                      ],
+                    ),
+                  ),
+                ),
                 // Trouble logging in link
                 TextButton(
                   onPressed: () {

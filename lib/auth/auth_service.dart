@@ -40,6 +40,11 @@ class AuthService {
     return _loginWithSocial('google-oauth2', {'prompt': 'select_account'});
   }
 
+  // sigin with apple
+  Future<Result<UserProfile?, Map<String, String>>> loginWithApple() async {
+    return _loginWithSocial('apple');
+  }
+
   Future<Result<UserProfile?, Map<String, String>>> _loginWithSocial(
       String connection,
       [Map<String, String>? additionalParameters]) async {
